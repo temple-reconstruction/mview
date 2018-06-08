@@ -8,7 +8,9 @@ OBJ = main.o \
 
 LIBRARIES = -lfreeimage
 
-all: $(OBJ)
+all: $(BINARY)
+
+$(BINARY): $(OBJ)
 	$(CC) $(CFLAGS) -o $(BINARY) $(OBJ) $(LIBRARIES)
 
 clean:
