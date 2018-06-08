@@ -15,6 +15,8 @@ struct Image {
 	Eigen::MatrixXf pixel_values;
 	Eigen::Matrix3f intrinsics;
 	Eigen::Matrix4f extrinsics;
+	int width;
+	int height;
 };
 
 /// A pair of images rectified onto a single virtual camera plane with common baselines.
