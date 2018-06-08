@@ -16,5 +16,6 @@ float ssd_cost(ImageView left, ImageView right){
             } 
         }
     }
+    return cost;
     
 }
