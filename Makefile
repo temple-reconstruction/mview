@@ -1,9 +1,10 @@
 CC = g++
 CFLAGS = -Wall -pedantic
-CPPFLAGS = -std=c++14
+CPPFLAGS = -std=c++14 -I/usr/include/eigen3
 
 BINARY = mview
-OBJ = main.o
+OBJ = main.o \
+
 LIBRARIES = -lfreeimage
 
 all: $(OBJ)

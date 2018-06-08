@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <ostream>
-#include <eigen/Eigen.h>
+#include <Eigen/Eigen>
 
 /// Read from the parameter file `<name>_par.txt`
 struct CameraParameter {
@@ -12,15 +12,15 @@ struct CameraParameter {
 
 /// A possibly rectified image 
 struct Image {
-	Eigen::Matrix pixel_values;
+	Eigen::MatrixXf pixel_values;
 	Eigen::Matrix3f intrinsics;
 	Eigen::Matrix4f extrinsics;
 };
 
 /// A pair of images rectified onto a single virtual camera plane with common baselines.
 struct Rectified {
-	Eigen::Matrix pixel_left;
-	Eigen::Matrix pixel_right;
+	Eigen::MatrixXf pixel_left;
+	Eigen::MatrixXf pixel_right;
 
 	float baseline_distance;
 	Eigen::Matrix4f extrinsics;
