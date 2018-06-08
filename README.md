@@ -26,12 +26,14 @@ methods (block matching,sift, etc..) and choose the one with the best effect
 
 2. Use mathematical (triangle) relations to get the distances (depth) information
 
-3. Build a point cloud and estimate a 3D model with reconstructed textures
+3. Align the pair-wise points clouds
 
-4. Render and output from different views with the help of the visualization tools
+4. Build a point cloud and estimate a 3D model with reconstructed textures
+
+5. Render and output from different views with the help of the visualization tools
  (Meshlab, Blender)
 
-5. Compare the rendered model against existing evaluation standard.
+6. Compare the rendered model against existing evaluation standard.
 
 ## 4 References
 
