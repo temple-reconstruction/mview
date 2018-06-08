@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <ostream>
+#include <iostream>
+#include <fstream>
 #include <Eigen/Eigen>
 
 /// Read from the parameter file `<name>_par.txt`
@@ -55,7 +57,7 @@ struct ImageView {
 
 /// Just a collection of 3d (global) points.
 struct Pointcloud {
-	std::vector<Eigen::Vector3f> points;
+	std::vector<Eigen::VectorXf> points;
 };
 
 ///@author Yue
@@ -85,5 +87,7 @@ auto read_image(CameraParameter) -> Image;
  * write_mesh(outfile, cloud);
  */
 ///@ Yue
-void write_mesh(std::ostream&, Pointcloud);
+float dist(Eigen::VectorXf a, Eigen::VectorXf b);
+
+bool write_mesh(const std::string& filename, Pointcloud pointcloud);
 
