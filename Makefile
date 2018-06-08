@@ -4,6 +4,7 @@ CPPFLAGS = -std=c++14 -I/usr/include/eigen3
 
 BINARY = mview
 OBJ = main.o \
+      match.o \
 
 LIBRARIES = -lfreeimage
 
