@@ -5,6 +5,8 @@
 #include <fstream>
 #include <Eigen/Eigen>
 
+using RgbImage = Eigen::Matrix<Eigen::Vector3f, Eigen::Dynamic, Eigen::Dynamic>;
+
 /// Read from the parameter file `<name>_par.txt`
 struct CameraParameter {
 	std::string filename;
@@ -14,7 +16,8 @@ struct CameraParameter {
 
 /// A possibly rectified image 
 struct Image {
-	Eigen::MatrixXf pixel_values;
+	RgbImage RGB_pixel_values;
+	Eigen::MatrixXf Gray_pixel_values;
 	Eigen::Matrix3f intrinsics;
 	Eigen::Matrix4f extrinsics;
 	int width;
@@ -57,11 +60,13 @@ struct ImageView {
 
 /// Just a collection of 3d (global) points.
 struct Pointcloud {
-	std::vector<Eigen::VectorXf> points;
+	std::vector<Eigen::Vector3f> points;
 };
 
 ///@author Yue
-float ssd_cost(ImageView left, ImageView right);
+float ssd_cost_gray(ImageView left, ImageView right);
+
+float ssd_cost_RGB(ImageView left, ImageView right);
 
 ///@author Yu
 auto rectify(const Image& left, const Image& right) -> Rectified;
@@ -87,7 +92,5 @@ auto read_image(CameraParameter) -> Image;
  * write_mesh(outfile, cloud);
  */
 ///@ Yue
-float dist(Eigen::VectorXf a, Eigen::VectorXf b);
-
-bool write_mesh(const std::string& filename, Pointcloud pointcloud);
+bool write_mesh(const std::string& filename, Pointcloud pointcloud, Pointcloud colour);
 
