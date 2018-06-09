@@ -6,6 +6,7 @@ LDFLAGS =
 BINARY = mview
 OBJ = main.o \
       match.o \
+      align.o \
 
 LDLIBS = freeimage
 
