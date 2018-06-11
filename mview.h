@@ -67,7 +67,7 @@ auto match(const Rectified&) -> std::vector<Correspondence>;
 
 ///@ Sri
 /// Fill the missing global coordinate in the correspondence.
-auto triangulate(const Rectified&, Correspondence&);
+void triangulate(const Rectified&, Correspondence&);
 
 ///@ And, Yue
 auto align(std::vector<Pointcloud>) -> Pointcloud;
