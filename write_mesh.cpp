@@ -12,7 +12,7 @@ static float dist(Eigen::Vector3f a, Eigen::Vector3f b) {
     return (a - b).norm();
 }
 
-bool write_mesh(const std::string& filename, Pointcloud pointcloud)
+bool write_mesh(const std::ostream& outFile, Pointcloud pointcloud)
 {
 	float edgeThreshold = 0.001f;
 
@@ -34,10 +34,6 @@ bool write_mesh(const std::string& filename, Pointcloud pointcloud)
 			}
 		}
 	}
-
-	// Write off file
-	std::ofstream outFile(filename);
-	if (!outFile.is_open()) return false;
 
 	// write header
 	outFile << "COFF" << std::endl;
@@ -69,9 +65,5 @@ bool write_mesh(const std::string& filename, Pointcloud pointcloud)
 		}
 	}
 
-	// close file
-	outFile.close();
-
     return true;
-
 }
