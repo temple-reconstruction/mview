@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <ostream>
+#include <iostream>
+#include <fstream>
 #include <Eigen/Eigen>
 
 using GrayImage = Eigen::MatrixXf;
@@ -19,6 +21,8 @@ struct Image {
 	RgbImage rgb_pixels;
 	Eigen::Matrix3f intrinsics;
 	Eigen::Matrix4f extrinsics;
+	int width;
+	int height;
 };
 
 /// A pair of images rectified onto a single virtual camera plane with common baselines.
@@ -66,10 +70,11 @@ struct RgbImageView {
 /// Just a collection of 3d (global) points.
 struct Pointcloud {
 	std::vector<Eigen::Vector3f> points;
+	std::vector<Eigen::Vector4d> colours;
 };
 
 ///@author Yue
-float ssd_cost(GrayImageView left, GrayImageView right);
+float ssd_cost_gray(GrayImageView left, GrayImageView right);
 float ssd_cost_rgb(RgbImageView left, RgbImageView right);
 
 ///@author Yu
@@ -96,5 +101,5 @@ auto read_image(CameraParameter) -> Image;
  * write_mesh(outfile, cloud);
  */
 ///@ Yue
-void write_mesh(std::ostream&, Pointcloud);
+bool write_mesh(std::ostream& filename, Pointcloud pointcloud);
 

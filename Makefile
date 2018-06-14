@@ -7,6 +7,8 @@ BINARY = mview
 OBJ = main.o \
       match.o \
       align.o \
+	  ssd.o \
+	  write_mesh.o \
 
 LDLIBS = freeimage
 
