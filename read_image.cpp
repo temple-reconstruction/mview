@@ -1,23 +1,21 @@
 #include "mview.h"
 #include "FreeImage.h"
 
-auto ReadImageFromFile(std::string);
+GrayImage ReadImageFromFile(std::string);
 
 auto read_image(CameraParameter &cameraParameter) -> Image
 {
   Image image;
   image.intrinsics = cameraParameter.intrinsics;
   image.extrinsics = cameraParameter.extrinsics;
-  image.pixel_values = ReadImageFromFile(CameraParameter.filename);
+  image.rgb_pixels = ReadImageFromFile(cameraParameter.filename);
 
   return image;
 }
 
-auto ReadImageFromFile(std::string &filename) -> Eigen::MatrixXf
+GrayImage ReadImageFromFile(std::string &filename)
 {
   FreeImage_Initialise();
-  if (data != nullptr)
-    delete[] data;
 
   //image format
   FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
@@ -29,13 +27,13 @@ auto ReadImageFromFile(std::string &filename) -> Eigen::MatrixXf
   if (fif == FIF_UNKNOWN)
     fif = FreeImage_GetFIFFromFilename(filename.c_str());
   if (fif == FIF_UNKNOWN)
-    return false;
+    std::runtime_error("Data image format can not be determined");
 
   //check that the plugin has reading capabilities and load the file
   if (FreeImage_FIFSupportsReading(fif))
     dib = FreeImage_Load(fif, filename.c_str());
   if (!dib)
-    return false;
+    std::runtime_error("Image could not be read");
 
   // Convert to RGBA float images
   FIBITMAP *hOldImage = dib;
@@ -61,19 +59,18 @@ auto ReadImageFromFile(std::string &filename) -> Eigen::MatrixXf
 
   //if this somehow one of these failed (they shouldn't), return failure
   if ((bits == 0) || (w == 0) || (h == 0))
-    return false;
+    std::runtime_error("Invalid image");
 
   nChannels = 4;
 
   // copy image data
-  data = new float[nChannels * w * h];
+  float* data = new float[nChannels * w * h];
 
   // flip
   for (int y = 0; y < (int)h; ++y)
   {
     memcpy(&(data[y * nChannels * w]), &bits[sizeof(float) * (h - 1 - y) * nChannels * w], sizeof(float) * nChannels * w);
   }
-  //memcpy(data, bits, sizeof(float) * nChannels * w * h);
 
   //Free FreeImage's copy of the data
   FreeImage_Unload(dib);
