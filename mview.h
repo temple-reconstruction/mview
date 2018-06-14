@@ -3,6 +3,9 @@
 #include <ostream>
 #include <Eigen/Eigen>
 
+using GrayImage = Eigen::MatrixXf;
+using RgbImage = Eigen::Matrix<Eigen::Vector3f, Eigen::Dynamic, Eigen::Dynamic>;
+
 /// Read from the parameter file `<name>_par.txt`
 struct CameraParameter {
 	std::string filename;
@@ -12,15 +15,19 @@ struct CameraParameter {
 
 /// A possibly rectified image 
 struct Image {
-	Eigen::MatrixXf pixel_values;
+	GrayImage gray_pixels;
+	RgbImage rgb_pixels;
 	Eigen::Matrix3f intrinsics;
 	Eigen::Matrix4f extrinsics;
 };
 
 /// A pair of images rectified onto a single virtual camera plane with common baselines.
 struct Rectified {
-	Eigen::MatrixXf pixel_left;
-	Eigen::MatrixXf pixel_right;
+	GrayImage pixel_left_gray;
+	GrayImage pixel_right_gray;
+
+	RgbImage pixel_left_rgb;
+	RgbImage pixel_right_rgb;
 
 	float baseline_distance;
 	Eigen::Matrix4f extrinsics;
@@ -46,8 +53,13 @@ struct Correspondence {
 };
 
 /// A rectangular area of pixel in an image.
-struct ImageView {
-	const Image& image;
+struct GrayImageView {
+	const GrayImage& image;
+	int top_row, left_column, height, width;
+};
+
+struct RgbImageView {
+	const RgbImage& image;
 	int top_row, left_column, height, width;
 };
 
@@ -57,7 +69,8 @@ struct Pointcloud {
 };
 
 ///@author Yue
-float ssd_cost(ImageView left, ImageView right);
+float ssd_cost(GrayImageView left, GrayImageView right);
+float ssd_cost_rgb(RgbImageView left, RgbImageView right);
 
 ///@author Yu
 auto rectify(const Image& left, const Image& right) -> Rectified;
