@@ -12,7 +12,7 @@ static float dist(Eigen::Vector3f a, Eigen::Vector3f b) {
     return (a - b).norm();
 }
 
-bool write_mesh(std::ostream& outFile, Pointcloud pointcloud, bool use_face=0)
+bool write_mesh(std::ostream& outFile, Pointcloud pointcloud, bool use_face)
 {
 	float edgeThreshold = 0.001f;
 

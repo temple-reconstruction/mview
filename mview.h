@@ -98,5 +98,5 @@ auto read_image(CameraParameter) -> Image;
  * write_mesh(outfile, cloud);
  */
 ///@ Yue
-bool write_mesh(std::ostream& filename, Pointcloud pointcloud, bool use_face);
+bool write_mesh(std::ostream& filename, Pointcloud pointcloud, bool use_face=false);
 
