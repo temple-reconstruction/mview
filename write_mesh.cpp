@@ -6,13 +6,13 @@
 #define MINF -std::numeric_limits<float>::infinity()
 #endif
 
-#define USE_FACE  0
+constexpr static bool USE_FACE = 0;
 
 static float dist(Eigen::Vector3f a, Eigen::Vector3f b) {
     return (a - b).norm();
 }
 
-bool write_mesh(std::ostream& outFile, Pointcloud pointcloud)
+bool write_mesh(std::ostream& outFile, Pointcloud pointcloud, bool use_face=0)
 {
 	float edgeThreshold = 0.001f;
 
@@ -21,7 +21,7 @@ bool write_mesh(std::ostream& outFile, Pointcloud pointcloud)
 
 	//number of faces
 	unsigned int nFaces = 0;
-	if (USE_FACE){ 		
+	if (use_face){ 		
 		for (int i=0;i<nVertices-2;i++){
 			for (int j=i+1;j<nVertices-1;j++){
             	for (int k=j+1;k<nVertices;k++){
@@ -51,7 +51,7 @@ bool write_mesh(std::ostream& outFile, Pointcloud pointcloud)
 	}
 	
 	// save faces
-	if(USE_FACE){
+	if(use_face){
     	for (int i=0;i<nVertices-2;i++){
 			for (int j=i+1;j<nVertices-1;j++){
             	for (int k=j+1;k<nVertices;k++){
