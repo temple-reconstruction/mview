@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -Wall -pedantic
-CXXFLAGS = -std=c++14 -I/usr/include/eigen3
+CXXFLAGS = -std=c++14 -isystem /usr/include/eigen3
 LDFLAGS =
 
 BINARY = mview
