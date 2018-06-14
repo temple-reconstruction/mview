@@ -70,6 +70,7 @@ struct RgbImageView {
 /// Just a collection of 3d (global) points.
 struct Pointcloud {
 	std::vector<Eigen::Vector3f> points;
+	std::vector<Eigen::Vector4d> colours;
 };
 
 ///@author Yue
@@ -100,5 +101,5 @@ auto read_image(CameraParameter) -> Image;
  * write_mesh(outfile, cloud);
  */
 ///@ Yue
-bool write_mesh(const std::ostream& filename, Pointcloud pointcloud, Pointcloud colour);
+bool write_mesh(std::ostream& filename, Pointcloud pointcloud);
 

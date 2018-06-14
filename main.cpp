@@ -24,7 +24,7 @@ int main() {
 	const auto pointclouds = rectified_to_pointclouds(rectified);
 	const auto merged = align(pointclouds);
 	std::fstream output_file("output.ply", std::ios_base::out);
-	write_mesh(output_file, merged, {});
+	write_mesh(output_file, merged);
 }
 
 std::vector<Image> read_images(std::vector<CameraParameter> samples) {
