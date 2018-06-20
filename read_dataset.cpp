@@ -54,7 +54,7 @@ auto read_dataset(std::istream& inputfile) -> std::vector<CameraParameter>{
         cameraParameter.extrinsics(3,0)=0.0;
         cameraParameter.extrinsics(3,1)=0.0;
         cameraParameter.extrinsics(3,2)=0.0;
-        cameraParameter.extrinsics(3,3)=0.0;
+        cameraParameter.extrinsics(3,3)=1.0;
 
 
         cameraParameters.push_back(cameraParameter);
