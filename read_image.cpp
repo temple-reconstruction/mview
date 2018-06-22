@@ -1,7 +1,9 @@
 #include "mview.h"
 #include "FreeImage.h"
+#include <Eigen/Dense>
 
 static std::pair<GrayImage, RgbImage> ReadImageFromFile(std::string);
+static float ColourToGray(Eigen::Vector3f rgb);
 
 auto read_image(CameraParameter cameraParameter) -> Image
 {
@@ -49,7 +51,7 @@ std::pair<GrayImage, RgbImage> ReadImageFromFile(std::string filename)
 
   //if this somehow one of these failed (they shouldn't), return failure
   if ((bits == 0) || (w == 0) || (h == 0))
-    throw std::runtime_error("Invalid image");
+    throw std::runtime_error("Could not convert to rgb");
 
   // Eigen stores column major by default, we prefer pixel samples in row major.
   using PixelSampleMatrix = Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>;
@@ -58,14 +60,24 @@ std::pair<GrayImage, RgbImage> ReadImageFromFile(std::string filename)
   using PixelSamples = Eigen::Map<PixelSampleMatrix, 0, Eigen::Stride<4, 1>>;
   PixelSamples data_vector { reinterpret_cast<float*>(bits), w*h, 3 };
 
-  RgbImage rgb_target { w, h };
+  RgbImage rgb_target { h, w };
   for(int i = 0; i < w*h; i++)
-    rgb_target(i%w, i/w) = data_vector.row(i);
+    rgb_target(i/w, i%w) = data_vector.row(i);
 
-  GrayImage gray_target;
+  GrayImage gray_target { h, w };
+  for(int i = 0; i < w*h; i++)
+    gray_target(i/w, i%w) = ColourToGray(data_vector.row(i));
 
   //Free FreeImage's copy of the data
   FreeImage_Unload(dib);
 
   return {gray_target, rgb_target};
 }
+
+static float ColourToGray(Eigen::Vector3f rgb) {
+  static constexpr float GAMMA = 2.2;
+
+  const Eigen::Vector3f gamma_correct = Eigen::Array3f(rgb).pow(GAMMA);
+  return gamma_correct.dot(Eigen::Vector3f { .2126, .7152, .0722 });
+}
+
