@@ -12,6 +12,7 @@ struct MinMatch {
 
 }
 
+static constexpr int BLOCK_SIZE = 3;
 static MinMatch find_min_gray(GrayImageView pattern, const GrayImage& rhs, int row);
 static Correspondence match_to_correspondence(int row, int col, MinMatch match);
 
@@ -23,9 +24,9 @@ auto match(const Rectified& rectified) -> Matches {
 
 	Matches matches;
 
-	for(int i = 0; i < pixel_left.rows(); i++) {
-		for(int j = 0; j < pixel_left.cols(); j++) {
-			const GrayImageView pattern { pixel_left, i, j, 1, 1 };
+	for(int i = BLOCK_SIZE; i < pixel_left.rows() - BLOCK_SIZE; i++) {
+		for(int j = BLOCK_SIZE; j < pixel_left.cols() - BLOCK_SIZE; j++) {
+			const GrayImageView pattern { pixel_left, i, j, 2*BLOCK_SIZE + 1, 2*BLOCK_SIZE + 1 };
 			const auto min = find_min_gray(pattern, pixel_right, i);
 
 			matches.push_back(match_to_correspondence(i, j, min));
@@ -38,8 +39,8 @@ auto match(const Rectified& rectified) -> Matches {
 MinMatch find_min_gray(GrayImageView pattern, const GrayImage& rhs, int row) {
 	MinMatch best_match { 0, 0.0 };
 
-	for(int j = 0; j < rhs.cols(); j++) {
-		const GrayImageView compare { rhs, row, j, 1, 1 };
+	for(int j = BLOCK_SIZE; j < rhs.cols() - BLOCK_SIZE; j++) {
+		const GrayImageView compare { rhs, row, j, 2*BLOCK_SIZE + 1, 2*BLOCK_SIZE + 1 };
 
 		const auto cost = ssd_cost_gray(pattern, compare);
 		if(cost < best_match.cost)
