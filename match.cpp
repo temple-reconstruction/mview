@@ -48,8 +48,8 @@ auto match(const Rectified& rectified) -> Matches {
 MinMatch find_min_gray(GrayImageView pattern, const GrayImage& rhs, int row) {
 	MinMatch best_match { 0, 0.0 };
 
-	for(int j = 0; j < rhs.cols(); j++) {
-		const GrayImageView compare { rhs, row, j, 1, 1 };
+	for(int j = BLOCK_SIZE; j < rhs.cols() - BLOCK_SIZE; j++) {
+		const GrayImageView compare { rhs, row, j, 2*BLOCK_SIZE + 1, 2*BLOCK_SIZE + 1 };
 
 		const auto cost = ssd_gray(pattern, compare);
 		if(cost < best_match.cost)
