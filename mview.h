@@ -1,8 +1,6 @@
 #pragma once
 #include <vector>
 #include <ostream>
-#include <iostream>
-#include <fstream>
 #include <Eigen/Eigen>
 
 using GrayImage = Eigen::MatrixXf;
@@ -21,8 +19,6 @@ struct Image {
 	RgbImage rgb_pixels;
 	Eigen::Matrix3f intrinsics;
 	Eigen::Matrix4f extrinsics;
-	int width;
-	int height;
 };
 
 /// A pair of images rectified onto a single virtual camera plane with common baselines.
@@ -54,6 +50,7 @@ struct Correspondence {
 
 	// Reconstructed global coordinates, filled later through triangulate.
 	Eigen::Vector3f global;
+	Eigen::Vector4d colour;
 };
 
 /// A rectangular area of pixel in an image.
@@ -101,5 +98,5 @@ auto read_image(CameraParameter) -> Image;
  * write_mesh(outfile, cloud);
  */
 ///@ Yue
-bool write_mesh(std::ostream& filename, Pointcloud pointcloud);
+bool write_mesh(std::ostream& filename, Pointcloud pointcloud, bool use_face=false);
 
