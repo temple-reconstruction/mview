@@ -59,7 +59,7 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
     cv::Mat R1,R2,P1,P2,Q;
     std::vector<int > disCoeff(4,1);
 //    cv::stereoRectify(left_intrinsics_mat,disCoeff,right_intrinsics_mat,disCoeff,size,R1,R2,P1,P2,Q,);
-    cv::stereoRectify(left_intrinsics_mat,disCoeff,right_intrinsics_mat,disCoeff,imageSize,R_mat,T_mat,R1,R2,P1,P2,Q,0,-1,imageSize,0,0);
+    cv::stereoRectify(left_intrinsics_mat,nullptr,right_intrinsics_mat,nullptr,imageSize,R_mat,T_mat,R1,R2,P1,P2,Q,0,-1,imageSize,0,0);
 
     cv::Mat map1,map2;
     cv::initUndistortRectifyMap(left_intrinsics_mat,disCoeff,R1,P1,imageSize,CV_32FC1,map1,map2);
