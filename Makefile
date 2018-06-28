@@ -10,8 +10,9 @@ OBJ = main.o \
 	  ssd.o \
 	  write_mesh.o \
 	  read_dataset.o \
+	  rectify.o \
 
-LDLIBS = freeimage
+LDLIBS = freeimage opencv_core opencv_calib3d opencv_imgproc
 
 all: $(BINARY)
 
