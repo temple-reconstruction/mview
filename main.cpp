@@ -29,7 +29,8 @@ int main() {
 
 std::vector<Image> read_images(std::vector<CameraParameter> samples) {
 	std::vector<Image> output (samples.size());
-	for(const auto& parameter : samples) {
+	for(auto& parameter : samples) {
+		parameter.filename = data_directory + parameter.filename;
 		output.push_back(read_image(parameter));
 	}
 	return output;
@@ -57,3 +58,4 @@ std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>& r
 	}
 	return output;
 }
+
