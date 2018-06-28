@@ -1,13 +1,14 @@
 //
 // Created by wang yu on 2018/6/20.
 //
-
 #include "mview.h"
+
 #include <Eigen/Eigen>
 #include <Eigen/Dense>
-#include <opencv2>
+#include <opencv2/core.hpp>
 #include <opencv/cv.hpp>
 #include <opencv2/core/eigen.hpp>
+
 auto rectify(const Image& left, const Image& right) -> Rectified{
 
 
@@ -59,7 +60,7 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
     cv::Mat R1,R2,P1,P2,Q;
     std::vector<int > disCoeff(4,1);
 //    cv::stereoRectify(left_intrinsics_mat,disCoeff,right_intrinsics_mat,disCoeff,size,R1,R2,P1,P2,Q,);
-    cv::stereoRectify(left_intrinsics_mat,nullptr,right_intrinsics_mat,nullptr,imageSize,R_mat,T_mat,R1,R2,P1,P2,Q,0,-1,imageSize,0,0);
+    cv::stereoRectify(left_intrinsics_mat,{},right_intrinsics_mat,{},imageSize,R_mat,T_mat,R1,R2,P1,P2,Q,0,-1,imageSize,0,0);
 
     cv::Mat map1,map2;
     cv::initUndistortRectifyMap(left_intrinsics_mat,disCoeff,R1,P1,imageSize,CV_32FC1,map1,map2);
@@ -86,11 +87,11 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
     cv::cv2eigen(left_rgb_mat,left_rgb_pixels);
     cv::cv2eigen(right_gray_mat,right_gray_pixels);
     cv::cv2eigen(right_rgb_mat,right_rgb_pixels);
-    Rectified rectified={
-            .pixel_left_gray=left_gray_pixels,
-            .pixel_left_rgb=left_rgb_pixels,
-            .pixel_right_gray=right_gray_pixels,
-            .pixel_right_rgb=right_rgb_pixels
+    Rectified rectified = {
+            /*.pixel_left_gray=*/left_gray_pixels,
+            /*.pixel_right_gray=*/right_gray_pixels,
+            /*.pixel_left_rgb=*/left_rgb_pixels,
+            /*.pixel_right_rgb=*/right_rgb_pixels
     };
 
     return rectified;
