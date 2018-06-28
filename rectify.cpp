@@ -54,6 +54,9 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
     cv::eigen2cv(R,R_mat);
     cv::eigen2cv(T,T_mat);
 
+	R_mat.assignTo(R_mat, CV_64F);
+	T_mat.assignTo(T_mat, CV_64F);
+
 //    cv::MatSize size=left_gray_mat.size;
 
     cv::Size imageSize=left_gray_mat.size();
