@@ -29,8 +29,7 @@ int main() {
 
 std::vector<Image> read_images(std::vector<CameraParameter> samples) {
 	std::vector<Image> output (samples.size());
-	for(auto& parameter : samples) {
-		parameter.filename = data_directory + parameter.filename;
+	for(const auto& parameter : samples) {
 		output.push_back(read_image(parameter));
 	}
 	return output;

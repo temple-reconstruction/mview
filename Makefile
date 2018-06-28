@@ -11,7 +11,6 @@ OBJ = main.o \
 	  write_mesh.o \
 	  read_image.o \
 	  read_dataset.o \
-	  stub.o \
 
 LDLIBS = freeimage
 
