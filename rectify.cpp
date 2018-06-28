@@ -2,6 +2,7 @@
 // Created by wang yu on 2018/6/20.
 //
 #include "mview.h"
+#include <iostream>
 
 #include <Eigen/Eigen>
 #include <Eigen/Dense>
@@ -9,9 +10,37 @@
 #include <opencv/cv.hpp>
 #include <opencv2/core/eigen.hpp>
 
+cv::Mat convertRgbToOpenCV(const RgbImage& rgb) {
+	GrayImage r = rgb.unaryExpr([](Eigen::Vector3f rgb) { return rgb[0]; });
+	GrayImage g = rgb.unaryExpr([](Eigen::Vector3f rgb) { return rgb[1]; });
+	GrayImage b = rgb.unaryExpr([](Eigen::Vector3f rgb) { return rgb[2]; });
+
+	cv::Mat r_mat;
+    cv::eigen2cv(r,r_mat);
+	cv::Mat g_mat;
+    cv::eigen2cv(g,g_mat);
+	cv::Mat b_mat;
+    cv::eigen2cv(b,b_mat);
+
+	cv::Mat arr[3] { r_mat, g_mat, b_mat };
+	cv::Mat rgb_mat;
+	cv::merge(arr, 3, rgb_mat);
+	return rgb_mat;
+}
+
+void remap_rgb(cv::Mat rgb_image, cv::Mat map1, cv::Mat map2) {
+	std::cout << rgb_image.channels() << " " << rgb_image.type() << " " << rgb_image.size() << "\n";
+
+	cv::Mat rgbs[3];
+	cv::split(rgb_image, rgbs);
+
+	for(int i = 0; i < 3; i++)
+		cv::remap(rgbs[i], rgbs[i], map1, map2, cv::INTER_NEAREST, cv::BORDER_CONSTANT);
+
+	cv::merge(rgbs, 3, rgb_image);
+}
+
 auto rectify(const Image& left, const Image& right) -> Rectified{
-
-
     //load data
     GrayImage left_gray_pixels=left.gray_pixels;
     RgbImage left_rgb_pixels=left.rgb_pixels;
@@ -39,12 +68,10 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
     //convert eigen matrix to mat
     cv::Mat left_gray_mat;
     cv::eigen2cv(left_gray_pixels,left_gray_mat);
-    cv::Mat left_rgb_mat;
-    cv::eigen2cv(left_rgb_pixels,left_rgb_mat);
+    cv::Mat left_rgb_mat = convertRgbToOpenCV(left_rgb_pixels);
     cv::Mat right_gray_mat;
     cv::eigen2cv(right_gray_pixels,right_gray_mat);
-    cv::Mat right_rgb_mat;
-    cv::eigen2cv(right_rgb_pixels,right_rgb_mat);
+    cv::Mat right_rgb_mat = convertRgbToOpenCV(right_rgb_pixels);
     cv::Mat left_intrinsics_mat,left_extrinsics_mat,right_intrinsics_mat,right_extrinsics_mat,R_mat,T_mat;
 
     cv::eigen2cv(left_intrinsics,left_intrinsics_mat);
@@ -68,12 +95,17 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
     cv::Mat map1,map2;
     cv::initUndistortRectifyMap(left_intrinsics_mat,disCoeff,R1,P1,imageSize,CV_32FC1,map1,map2);
     cv::remap(left_gray_mat,left_gray_mat,map1,map2,cv::INTER_NEAREST,cv::BORDER_CONSTANT);
-    cv::remap(left_rgb_mat,left_rgb_mat,map1,map2,cv::INTER_NEAREST,cv::BORDER_CONSTANT);
+	std::cout << left_gray_mat.channels() << " " << left_gray_mat.type() << " " << left_gray_mat.size() << "\n";
+	std::cout << "Remapped gray\n";
+	remap_rgb(left_rgb_mat, map1, map2);
+	std::cout << "Remapped rgb\n";
 
     cv::Mat map3,map4;
     cv::initUndistortRectifyMap(right_intrinsics_mat,disCoeff,R2,P2,imageSize,CV_32FC1,map3,map4);
     cv::remap(right_gray_mat,right_gray_mat,map3,map4,cv::INTER_NEAREST,cv::BORDER_CONSTANT);
-    cv::remap(right_rgb_mat,right_rgb_mat,map3,map4,cv::INTER_NEAREST,cv::BORDER_CONSTANT);
+	std::cout << "Remapped gray\n";
+	remap_rgb(right_rgb_mat, map3, map4);
+	std::cout << "Remapped rgb\n";
 
     //convert mat to eigen matrix
 //    struct Rectified {
