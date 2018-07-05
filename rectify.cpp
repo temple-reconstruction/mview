@@ -147,8 +147,8 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
 //    cv::cv2eigen(right_rgb_mat,right_rgb_pixels);
     right_rgb_pixels=convertOpenCVToRgb(right_rgb_mat);
 
-    std::cout<<P1<<std::endl;
-    std::cout<<P2<<std::endl;
+//    std::cout<<P1<<std::endl;
+//    std::cout<<P2<<std::endl;
 
 
     Rectified rectified = {
