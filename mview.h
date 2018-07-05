@@ -2,6 +2,7 @@
 #include <vector>
 #include <ostream>
 #include <Eigen/Eigen>
+#include <opencv2/core.hpp>
 
 using GrayImage = Eigen::MatrixXf;
 using RgbImage = Eigen::Matrix<Eigen::Vector3f, Eigen::Dynamic, Eigen::Dynamic>;
