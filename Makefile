@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -Wall -pedantic
+CFLAGS = -Wall -pedantic -O3
 CXXFLAGS = -std=c++14 -isystem /usr/include/eigen3
 LDFLAGS =
 
