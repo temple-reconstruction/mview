@@ -10,10 +10,6 @@
 
 void triangulate(const Rectified &rectified, Correspondence &correspondence)
 {
-  
-  const auto &extrinsics = rectified.extrinsics;
-  const auto &baseline_distance = rectified.baseline_distance;
-
   const auto &pixel_left = correspondence.left;
   const auto &pixel_right = correspondence.right;
   const auto &global = correspondence.global;
