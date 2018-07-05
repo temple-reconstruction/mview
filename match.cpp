@@ -26,7 +26,7 @@ auto match(const Rectified& rectified) -> Matches {
 
 	for(int i = BLOCK_SIZE; i < pixel_left.rows() - BLOCK_SIZE; i++) {
 		for(int j = BLOCK_SIZE; j < pixel_left.cols() - BLOCK_SIZE; j++) {
-			const GrayImageView pattern { pixel_left, i, j, 2*BLOCK_SIZE + 1, 2*BLOCK_SIZE + 1 };
+			const GrayImageView pattern { pixel_left, i - BLOCK_SIZE, j - BLOCK_SIZE, 2*BLOCK_SIZE + 1, 2*BLOCK_SIZE + 1 };
 			const auto min = find_min_gray(pattern, pixel_right, i);
 
 			matches.push_back(match_to_correspondence(i, j, min));
@@ -40,7 +40,7 @@ MinMatch find_min_gray(GrayImageView pattern, const GrayImage& rhs, int row) {
 	MinMatch best_match { 0, 0.0 };
 
 	for(int j = BLOCK_SIZE; j < rhs.cols() - BLOCK_SIZE; j++) {
-		const GrayImageView compare { rhs, row, j, 2*BLOCK_SIZE + 1, 2*BLOCK_SIZE + 1 };
+		const GrayImageView compare { rhs, row - BLOCK_SIZE, j - BLOCK_SIZE, 2*BLOCK_SIZE + 1, 2*BLOCK_SIZE + 1 };
 
 		const auto cost = ssd_cost_gray(pattern, compare);
 		if(cost < best_match.cost)
@@ -56,3 +56,4 @@ Correspondence match_to_correspondence(int row, int col, MinMatch match) {
 
 	return { coords_left, coords_right, match.cost, {} };
 }
+

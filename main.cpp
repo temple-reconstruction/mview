@@ -18,12 +18,18 @@ static void for_each_pair(T begin, T end, F functor) {
 
 int main() {
 	std::fstream parameter_file(data_directory + "templeSR_par.txt", std::ios_base::in);
+	std::cout << "Reading dataset\n";
 	const auto dataset = read_dataset(parameter_file);
+	std::cout << "Reading images\n";
 	const auto images = read_images(dataset);
+	std::cout << "Rectifying images\n";
 	const auto rectified = rectified_pairs(images);
+	std::cout << "Triangulating pointcoulds\n";
 	const auto pointclouds = rectified_to_pointclouds(rectified);
+	std::cout << "Merging pointclouds\n";
 	const auto merged = align(pointclouds);
 	std::fstream output_file("output.ply", std::ios_base::out);
+	std::cout << "Writing output file\n";
 	write_mesh(output_file, merged);
 }
 
@@ -49,11 +55,14 @@ std::vector<Rectified> rectified_pairs(const std::vector<Image>& images) {
 std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>& rectified_pairs) {
 	std::vector<Pointcloud> output;
 	for(const auto& rectified_pair : rectified_pairs) {
+		std::cout << " Finding pixel matches\n";
 		auto correspondences = match(rectified_pair);
+		std::cout << " Triangulating coordinates\n";
 		for(auto& correspondence : correspondences) 
 			triangulate(rectified_pair, correspondence);
 
 		Pointcloud pointcloud;
+		std::cout << " Creating pointcloud\n";
 		for(auto& correspondence : correspondences) 
 			pointcloud.points.push_back(correspondence.global);
 		output.push_back(std::move(pointcloud));
