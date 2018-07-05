@@ -35,7 +35,7 @@ RgbImage convertOpenCVToRgb(const cv::Mat rgbMat){
     cv::cv2eigen(rgb[0],r);
     cv::cv2eigen(rgb[1],g);
     cv::cv2eigen(rgb[2],b);
-//    std::cout<<g.rows()<<std::endl;
+
     RgbImage rgbImage (g.rows(), g.cols());
 // Eigen::Matrix<Eigen::Vector3f,480,640> rgbImage;
 //    rgbImage.setZero();
@@ -54,7 +54,7 @@ void remap_rgb(cv::Mat rgb_image, cv::Mat map1, cv::Mat map2) {
 
 	cv::Mat rgbs[3];
 	cv::split(rgb_image, rgbs);
-
+  
 	for(int i = 0; i < 3; i++)
 		cv::remap(rgbs[i], rgbs[i], map1, map2, cv::INTER_NEAREST, cv::BORDER_CONSTANT);
 
@@ -146,10 +146,6 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
     cv::cv2eigen(right_gray_mat,right_gray_pixels);
 //    cv::cv2eigen(right_rgb_mat,right_rgb_pixels);
     right_rgb_pixels=convertOpenCVToRgb(right_rgb_mat);
-
-//    std::cout<<P1<<std::endl;
-//    std::cout<<P2<<std::endl;
-
 
     Rectified rectified = {
             /*.pixel_left_gray=*/left_gray_pixels,

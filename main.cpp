@@ -28,7 +28,8 @@ int main() {
 }
 
 std::vector<Image> read_images(std::vector<CameraParameter> samples) {
-	std::vector<Image> output (samples.size());
+	std::vector<Image> output;
+	output.reserve(samples.size());
 	for(auto& parameter : samples) {
 		parameter.filename = data_directory + parameter.filename;
 		output.push_back(read_image(parameter));
@@ -37,7 +38,8 @@ std::vector<Image> read_images(std::vector<CameraParameter> samples) {
 }
 
 std::vector<Rectified> rectified_pairs(const std::vector<Image>& images) {
-	std::vector<Rectified> output (images.size() /* Approximate size */);
+	std::vector<Rectified> output;
+ 	output.reserve(images.size());
 	for_each_pair(images.begin(), images.end(), [&](const Image& left, const Image& right) {
 		output.push_back(rectify(left, right));
 	});
@@ -58,4 +60,6 @@ std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>& r
 	}
 	return output;
 }
+
+void triangulate(const Rectified&, Correspondence&) { }
 
