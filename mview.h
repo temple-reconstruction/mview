@@ -23,14 +23,19 @@ struct Image {
 
 /// A pair of images rectified onto a single virtual camera plane with common baselines.
 struct Rectified {
-	GrayImage pixel_left_gray;
-	GrayImage pixel_right_gray;
-
-	RgbImage pixel_left_rgb;
-	RgbImage pixel_right_rgb;
-
-	float baseline_distance;
-	Eigen::Matrix4f extrinsics;
+    GrayImage pixel_left_gray;
+    GrayImage pixel_right_gray;
+    
+    RgbImage pixel_left_rgb;
+    RgbImage pixel_right_rgb;
+    
+    //    float baseline_distance;
+    Eigen::Matrix4f extrinsics_left;
+    Eigen::Matrix4f extrinsics_right;
+    cv::Mat R1;
+    cv::Mat R2;
+    cv::Mat P1;
+    cv::Mat P2;
 };
 
 /// A pair of pixels allegedly corresponding to the same object vertex.
