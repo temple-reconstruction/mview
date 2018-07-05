@@ -146,6 +146,14 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
     cv::cv2eigen(right_gray_mat,right_gray_pixels);
 //    cv::cv2eigen(right_rgb_mat,right_rgb_pixels);
     right_rgb_pixels=convertOpenCVToRgb(right_rgb_mat);
+<<<<<<< HEAD
+=======
+
+//    std::cout<<P1<<std::endl;
+//    std::cout<<P2<<std::endl;
+
+
+>>>>>>> command cout
     Rectified rectified = {
             /*.pixel_left_gray=*/left_gray_pixels,
             /*.pixel_right_gray=*/right_gray_pixels,
