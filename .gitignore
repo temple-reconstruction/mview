@@ -31,5 +31,9 @@
 *.out
 *.app
 
-/mview
+# Input files
 /data
+
+# Output files
+/mview
+*.off
