@@ -54,6 +54,7 @@ std::vector<Rectified> rectified_pairs(const std::vector<Image>& images) {
 
 std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>& rectified_pairs) {
 	std::vector<Pointcloud> output;
+	int i = 0;
 	for(const auto& rectified_pair : rectified_pairs) {
 		std::cout << " Finding pixel matches\n";
 		auto correspondences = match(rectified_pair);
@@ -65,6 +66,14 @@ std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>& r
 		std::cout << " Creating pointcloud\n";
 		for(auto& correspondence : correspondences) 
 			pointcloud.points.push_back(correspondence.global);
+
+		std::stringstream debug_name;
+		debug_name << "output_debug" << i++ << ".ply";
+		std::fstream debug_out(debug_name.str(), std::ios_base::out);
+		std::cout << " Writing debug output\n";
+		for(auto& correspondence : correspondences) 
+		write_mesh(debug_out, pointcloud);
+
 		output.push_back(std::move(pointcloud));
 	}
 	return output;
