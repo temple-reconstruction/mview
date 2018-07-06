@@ -1,20 +1,41 @@
 #include "mview.h"
 
-void triangulate(const Rectified &rectified, Correspondence &correspondence)
+#include <iostream>
+
+#include <Eigen/Eigen>
+#include <Eigen/Dense>
+#include <opencv2/core.hpp>
+#include <opencv/cv.hpp>
+#include <opencv2/core/eigen.hpp>
+
+void triangulate(const Rectified &rectified, std::vector<Correspondence> &correspondences)
 {
   
-  const auto &extrinsics = rectified.extrinsics;
-  const auto &baseline_distance = rectified.baseline_distance;
+  cv::Mat Output4DPoints;
+  std::vector<cv::Point2f> left_projection_points, right_projection_points;
+  
+  // 2xN corresponding points from correspondences
+  for (int i = 0; i < correspondences.size(); i++)
+  {
+    left_projection_points.emplace_back(correspondences[i].left.x, correspondences[i].left.y);
+    right_projection_points.emplace_back(correspondences[i].right.x, correspondences[i].right.y);
+  }
+  
+  const auto &left_projection_matrix = rectified.P1;
+  const auto &right_projection_matrix = rectified.P2;
 
-  const auto &pixel_left = correspondence.left;
-  const auto &pixel_right = correspondence.right;
-  const auto &cost = correspondence.cost;
-  const auto &global = correspondence.global;
+  cv::triangulatePoints(left_projection_matrix, right_projection_matrix,
+                        left_projection_points, right_projection_points,
+                        Output4DPoints);
 
-  const auto parallaxX = -(pixel_right.x - pixel_left.x);
-  const auto parallaxY = -(pixel_right.y - pixel_left.y);
+  for(int i = 0; i < 4; i++) {
+    // Iteration order is important here
+	Output4DPoints.row(i) /= Output4DPoints.row(3);
+  }
 
-  global[2] = ((baseline_distance / parallaxX) * camera_constant) * extrinsics;
-  global[0] = (pixel_left.x * (baseline_distance / parallaxX)) * extrinsics;
-  global[1] = (((pixel_left.y + pixel_right.y) / 2) * (baseline_distance / parallaxX))) * extrinsics;
+  //TODO assert if size of correspondences is equal to number of Output4DPoints generated
+
+  for (int i = 0; i < correspondences.size(); i++){
+	cv::cv2eigen(Output4DPoints.col(i).rowRange(0, 3), correspondences[i].global);
+  }
 }
