@@ -8,39 +8,43 @@
 #include <opencv/cv.hpp>
 #include <opencv2/core/eigen.hpp>
 
-void triangulate(const Rectified &rectified, Correspondence &correspondence)
+void triangulate(const Rectified &rectified, std::vector<Correspondence> &correspondences)
 {
-  const auto &pixel_left = correspondence.left;
-  const auto &pixel_right = correspondence.right;
-  const auto &global = correspondence.global;
   
-  const auto &projMatr1 = rectified.R1;
-  const auto &projMatr1 = rectified.R2;
-  const auto &pixel_left = rectified.P1;
-  const auto &pixel_right = rectified.P2;
+  cv::Mat Output4DPoints;
+  std::vector<cv::Point2f> left_projection_points, left_projection_points;
+  vector<cv::Point3d> points_3d;
+  
+  // 2xN corresponding points from correspondences
+  for (int i = 0; i < correspondences.size(); i++)
+  {
+    left_projection_points.push_back(correspondences[i].left.x, correspondences[i].left.y);
+    right_projection_points.push_back(correspondences[i].right.x, correspondences[i].right.y);
+  }
+  
+  const auto &left_projection_matrix = rectified.P1;
+  const auto &right_projection_matrix = rectified.P2;
 
-  // projMatrs: 3x4 projection Matrix of camera1 and camera2
-  // pixels:  2xN feature points
-  // global: 4xN reconstructed points
-  cv::triangulatePoints(projMatr1, projMatr2, pixel_left, pixel_right, global);
+  cv::triangulatePoints(left_projection_matrix, right_projection_matrix,
+                        left_projection_points, right_projection_points,
+                        Output4DPoints);
+
+  for (int i = 0; i < Output4DPoints.cols; i++)
+  {
+    cv::Mat point = Output4DPoints.col(i);
+    point /= point.at<float>(3, 0);
+    cv::Point3d p(
+        point.at<float>(0, 0),
+        point.at<float>(1, 0),
+        point.at<float>(2, 0));
+
+    points_3d.push_back(p);
+  }
+
+  //TODO assert if size of correspondences is equal to number of Output4DPoints generated
+
+  for (int i = 0; i < correspondences.size(); i++){
+    cv::cv2eigen(points_3d, correspondences[i].global);
+  }
+
 }
-
-// void triangulate(const Rectified &rectified, Correspondence &correspondence)
-// {
-  
-//   const auto &extrinsics = rectified.extrinsics;
-//   const auto &intrinsics = rectified.intrinsics;
-//   const auto &baseline_distance = rectified.baseline_distance;
-
-//   const auto &pixel_left = correspondence.left;
-//   const auto &pixel_right = correspondence.right;
-//   const auto &cost = correspondence.cost;
-//   const auto &global = correspondence.global;
-
-//   const auto parallaxX = -(pixel_right.x - pixel_left.x);
-//   const auto parallaxY = -(pixel_right.y - pixel_left.y);
-
-//   global[2] = ((baseline_distance / parallaxX) * intrinsics[0]) * extrinsics;
-//   global[0] = (pixel_left.x * (baseline_distance / parallaxX)) * extrinsics;
-//   global[1] = (((pixel_left.y + pixel_right.y) / 2) * (baseline_distance / parallaxX))) * extrinsics;
-// }
