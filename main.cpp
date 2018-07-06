@@ -3,7 +3,7 @@
 
 #include "mview.h"
 
-static const std::string data_directory = "data/templeSparseRing/";
+static const std::string data_directory = "data/rathaus/";
 static std::vector<Image> read_images(std::vector<CameraParameter> samples);
 static std::vector<Rectified> rectified_pairs(const std::vector<Image>& images);
 static std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>&);
@@ -17,7 +17,7 @@ static void for_each_pair(T begin, T end, F functor) {
 }
 
 int main() {
-	std::fstream parameter_file(data_directory + "templeSR_par.txt", std::ios_base::in);
+	std::fstream parameter_file(data_directory + "parameter.txt", std::ios_base::in);
 	std::cout << "Reading dataset\n";
 	const auto dataset = read_dataset(parameter_file);
 	std::cout << "Reading images\n";

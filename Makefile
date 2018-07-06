@@ -9,8 +9,7 @@ OBJ = main.o \
       align.o \
 	  ssd.o \
 	  write_mesh.o \
-	  read_dataset.o \
-	  read_image.o \
+	  read_rathaus.o \
 	  rectify.o \
 	  triangulate.o \
 
