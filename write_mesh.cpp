@@ -45,8 +45,8 @@ bool write_mesh(std::ostream& outFile, Pointcloud pointcloud, bool use_face)
             outFile << "0 0 0 255 255 255 255" << std::endl;
 		}
 		else{
-			outFile << pointcloud.points[i](0) << " " << pointcloud.points[i](1) << " " << pointcloud.points[i](2) << " " <<
-			 pointcloud.colours[i](0) << " " << pointcloud.colours[i](1) << " " << pointcloud.colours[i](2) << " " << pointcloud.colours[i](3) << std::endl;
+			outFile << pointcloud.points[i](0) << " " << pointcloud.points[i](1) << " " << pointcloud.points[i](2) << " " << std::endl;
+			 // pointcloud.colours[i](0) << " " << pointcloud.colours[i](1) << " " << pointcloud.colours[i](2) << " " << pointcloud.colours[i](3) << std::endl;
 		}
 	}
 	

@@ -28,7 +28,7 @@ int main() {
 	const auto pointclouds = rectified_to_pointclouds(rectified);
 	std::cout << "Merging pointclouds\n";
 	const auto merged = align(pointclouds);
-	std::fstream output_file("output.ply", std::ios_base::out);
+	std::fstream output_file("output.off", std::ios_base::out);
 	std::cout << "Writing output file\n";
 	write_mesh(output_file, merged);
 }
@@ -68,10 +68,9 @@ std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>& r
 			pointcloud.points.push_back(correspondence.global);
 
 		std::stringstream debug_name;
-		debug_name << "output_debug" << i++ << ".ply";
+		debug_name << "output_debug" << i++ << ".off";
 		std::fstream debug_out(debug_name.str(), std::ios_base::out);
 		std::cout << " Writing debug output\n";
-		for(auto& correspondence : correspondences) 
 		write_mesh(debug_out, pointcloud);
 
 		output.push_back(std::move(pointcloud));
