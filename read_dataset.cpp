@@ -50,7 +50,7 @@ auto read_dataset(std::istream& inputfile) -> std::vector<CameraParameter>{
         cameraParameter.extrinsics(2,2)=std::atof(ss[17].c_str());
         cameraParameter.extrinsics(0,3)=std::atof(ss[18].c_str());
         cameraParameter.extrinsics(1,3)=std::atof(ss[19].c_str());
-        cameraParameter.extrinsics(2,3)=std::atof(ss[19].c_str());
+        cameraParameter.extrinsics(2,3)=std::atof(ss[20].c_str());
         cameraParameter.extrinsics(3,0)=0.0;
         cameraParameter.extrinsics(3,1)=0.0;
         cameraParameter.extrinsics(3,2)=0.0;
