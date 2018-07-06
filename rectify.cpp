@@ -139,13 +139,13 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
 //        float baseline_distance;
 //        Eigen::Matrix4f extrinsics;
 //    };
-    cv::cv2eigen(left_gray_mat,left_gray_pixels);
+    // cv::cv2eigen(left_gray_mat,left_gray_pixels);
 //    cv::cv2eigen(left_rgb_mat,left_rgb_pixels);
-    left_rgb_pixels=convertOpenCVToRgb(left_rgb_mat);
+    // left_rgb_pixels=convertOpenCVToRgb(left_rgb_mat);
 
-    cv::cv2eigen(right_gray_mat,right_gray_pixels);
+    // cv::cv2eigen(right_gray_mat,right_gray_pixels);
 //    cv::cv2eigen(right_rgb_mat,right_rgb_pixels);
-    right_rgb_pixels=convertOpenCVToRgb(right_rgb_mat);
+    // right_rgb_pixels=convertOpenCVToRgb(right_rgb_mat);
 
     Rectified rectified = {
             /*.pixel_left_gray=*/left_gray_pixels,

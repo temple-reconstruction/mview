@@ -14,7 +14,7 @@ OBJ = main.o \
 	  rectify.o \
 	  triangulate.o \
 
-LDLIBS = freeimage opencv_core opencv_calib3d opencv_imgproc
+LDLIBS = freeimage opencv_core opencv_calib3d opencv_imgproc opencv_highgui
 
 all: $(BINARY)
 

@@ -1,4 +1,5 @@
 #include "mview.h"
+#include <opencv2/highgui.hpp>
 
 namespace /* local types */ {
 
@@ -23,15 +24,22 @@ auto match(const Rectified& rectified) -> Matches {
 	assert(pixel_left.rows() == pixel_right.rows());
 
 	Matches matches;
+	cv::Mat_<float> distances((int)pixel_left.rows(), (int)pixel_left.cols());
 
 	for(int i = BLOCK_SIZE; i < pixel_left.rows() - BLOCK_SIZE; i++) {
 		for(int j = BLOCK_SIZE; j < pixel_left.cols() - BLOCK_SIZE; j++) {
+			if(pixel_left(i, j) < 5./256.)
+				continue;
 			const GrayImageView pattern { pixel_left, i - BLOCK_SIZE, j - BLOCK_SIZE, 2*BLOCK_SIZE + 1, 2*BLOCK_SIZE + 1 };
 			const auto min = find_min_gray(pattern, pixel_right, i);
 
 			matches.push_back(match_to_correspondence(i, j, min));
+			distances(i, j) = (min.colIndex - j)/10. + 0.5;
 		}
 	}
+
+	cv::imshow("distances", distances);
+	cv::waitKey(0);
 
 	return matches;
 }
