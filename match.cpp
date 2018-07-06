@@ -17,7 +17,7 @@ static constexpr int BLOCK_SIZE = 3;
 static MinMatch find_min_gray(GrayImageView pattern, const GrayImage& rhs, int row);
 static Correspondence match_to_correspondence(int row, int col, MinMatch match);
 
-auto match(const Rectified& rectified) -> Matches {
+Disparity match(const Rectified& rectified) {
 	const auto& pixel_left = rectified.pixel_left_gray;
 	const auto& pixel_right = rectified.pixel_right_gray;
 
@@ -42,7 +42,7 @@ auto match(const Rectified& rectified) -> Matches {
 	cv::imshow("distances", distances);
 	cv::waitKey(0);
 
-	return matches;
+	return { matches, distances };
 }
 
 MinMatch find_min_gray(GrayImageView pattern, const GrayImage& rhs, int row) {

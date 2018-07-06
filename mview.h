@@ -33,10 +33,13 @@ struct Rectified {
     //    float baseline_distance;
     Eigen::Matrix4f extrinsics_left;
     Eigen::Matrix4f extrinsics_right;
+
     cv::Mat R1;
     cv::Mat R2;
     cv::Mat P1;
     cv::Mat P2;
+
+	cv::Mat Q;
 };
 
 /// A pair of pixels allegedly corresponding to the same object vertex.
@@ -57,6 +60,11 @@ struct Correspondence {
 	// Reconstructed global coordinates, filled later through triangulate.
 	Eigen::Vector3f global;
 	Eigen::Vector4d colour;
+};
+
+struct Disparity {
+	std::vector<Correspondence> correspondences;
+	cv::Mat disparity;
 };
 
 /// A rectangular area of pixel in an image.
@@ -84,11 +92,11 @@ float ssd_cost_rgb(RgbImageView left, RgbImageView right);
 auto rectify(const Image& left, const Image& right) -> Rectified;
 
 ///@autor And
-auto match(const Rectified&) -> std::vector<Correspondence>;
+auto match(const Rectified&) -> Disparity;
 
 ///@ Sri
 /// Fill the missing global coordinate in the correspondence.
-void triangulate(const Rectified&, std::vector<Correspondence>&);
+void triangulate(const Rectified&, Disparity&);
 
 ///@ And, Yue
 auto align(std::vector<Pointcloud>) -> Pointcloud;
