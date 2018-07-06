@@ -37,7 +37,7 @@ auto match(const Rectified& rectified) -> Matches {
 }
 
 MinMatch find_min_gray(GrayImageView pattern, const GrayImage& rhs, int row) {
-	MinMatch best_match { 0, 0.0 };
+	MinMatch best_match { 0, std::numeric_limits<float>::max() };
 
 	for(int j = BLOCK_SIZE; j < rhs.cols() - BLOCK_SIZE; j++) {
 		const GrayImageView compare { rhs, row - BLOCK_SIZE, j - BLOCK_SIZE, 2*BLOCK_SIZE + 1, 2*BLOCK_SIZE + 1 };
@@ -47,7 +47,7 @@ MinMatch find_min_gray(GrayImageView pattern, const GrayImage& rhs, int row) {
 			best_match = { j, cost };
 	}
 
-	return { 0 };
+	return best_match;
 }
 
 Correspondence match_to_correspondence(int row, int col, MinMatch match) {
