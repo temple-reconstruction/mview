@@ -25,6 +25,7 @@ auto match(const Rectified& rectified) -> Matches {
 
 	Matches matches;
 	cv::Mat_<float> distances((int)pixel_left.rows(), (int)pixel_left.cols());
+	distances.setTo(0.f);
 
 	for(int i = BLOCK_SIZE; i < pixel_left.rows() - BLOCK_SIZE; i++) {
 		for(int j = BLOCK_SIZE; j < pixel_left.cols() - BLOCK_SIZE; j++) {
