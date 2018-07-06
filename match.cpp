@@ -24,18 +24,19 @@ Disparity match(const Rectified& rectified) {
 	assert(pixel_left.rows() == pixel_right.rows());
 
 	Matches matches;
-	cv::Mat_<float> distances((int)pixel_left.rows(), (int)pixel_left.cols());
+	cv::Mat_<float> distances((int)pixel_left.rows() - 2*BLOCK_SIZE, (int)pixel_left.cols() - 2*BLOCK_SIZE);
 	distances.setTo(0.f);
 
 	for(int i = BLOCK_SIZE; i < pixel_left.rows() - BLOCK_SIZE; i++) {
 		for(int j = BLOCK_SIZE; j < pixel_left.cols() - BLOCK_SIZE; j++) {
-			if(pixel_left(i, j) < 5./256.)
-				continue;
 			const GrayImageView pattern { pixel_left, i - BLOCK_SIZE, j - BLOCK_SIZE, 2*BLOCK_SIZE + 1, 2*BLOCK_SIZE + 1 };
 			const auto min = find_min_gray(pattern, pixel_right, i);
 
 			matches.push_back(match_to_correspondence(i, j, min));
-			distances(i, j) = (min.colIndex - j)/10. + 0.5;
+			distances(i - BLOCK_SIZE, j - BLOCK_SIZE) = static_cast<float>(j - min.colIndex); // /static_cast<float>(pixel_left.cols())*16.;
+			if(pixel_left(i, j) < 5./256.) {
+				distances(i - BLOCK_SIZE, j - BLOCK_SIZE) = -std::numeric_limits<float>::infinity();
+			}
 		}
 	}
 

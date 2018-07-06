@@ -14,14 +14,14 @@ static float dist(Eigen::Vector3f a, Eigen::Vector3f b) {
 
 bool write_mesh(std::ostream& outFile, Pointcloud pointcloud, bool use_face)
 {
-	float edgeThreshold = 0.001f;
+	float edgeThreshold = 0.00001f;
 
     //number of vertices
 	unsigned int nVertices = pointcloud.points.size();
 
 	//number of faces
 	unsigned int nFaces = 0;
-	if (use_face){ 		
+	if (use_face){
 		for (int i=0;i<nVertices-2;i++){
 			for (int j=i+1;j<nVertices-1;j++){
             	for (int k=j+1;k<nVertices;k++){
@@ -41,7 +41,7 @@ bool write_mesh(std::ostream& outFile, Pointcloud pointcloud, bool use_face)
 
 	//save vertices
     for (int i=0;i<nVertices;i++){
-		if (pointcloud.points[i](0)==MINF){
+		if (!std::isfinite(pointcloud.points[i](0))){
             outFile << "0 0 0 255 255 255 255" << std::endl;
 		}
 		else{
@@ -49,7 +49,7 @@ bool write_mesh(std::ostream& outFile, Pointcloud pointcloud, bool use_face)
 			 // pointcloud.colours[i](0) << " " << pointcloud.colours[i](1) << " " << pointcloud.colours[i](2) << " " << pointcloud.colours[i](3) << std::endl;
 		}
 	}
-	
+
 	// save faces
 	if(use_face){
     	for (int i=0;i<nVertices-2;i++){

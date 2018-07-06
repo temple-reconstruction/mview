@@ -11,9 +11,11 @@
 void triangulate(const Rectified &rectified, Disparity& disparity)
 {
   std::vector<Correspondence> &correspondences = disparity.correspondences;
-  
+
   cv::Mat Output4DPoints;
+  cv::reprojectImageTo3D(disparity.disparity, Output4DPoints, rectified.Q);
   
+  /*j
   const float scale_y = rectified.pixel_left_gray.cols();
   const float scale_x = rectified.pixel_left_gray.rows();
 
@@ -59,16 +61,24 @@ void triangulate(const Rectified &rectified, Disparity& disparity)
                         leftPointsMat, rightPointsMat,
                         Output4DPoints);
 
-  /*
+  
   for(int i = 0; i < 4; i++) {
     // Iteration order is important here
 	Output4DPoints.row(i) /= Output4DPoints.row(3);
   }
-  */
+ 
 
   //TODO assert if size of correspondences is equal to number of Output4DPoints generated
+  */
+
+  cv::Mat coordinates[3];
+  cv::split(Output4DPoints, coordinates);
+  assert(correspondences.size() == disparity.disparity.cols * disparity.disparity.rows);
 
   for (int i = 0; i < correspondences.size(); i++){
-	cv::cv2eigen(Output4DPoints.col(i).rowRange(0, 3), correspondences[i].global);
+	int col = i%disparity.disparity.cols;
+	int row = i/disparity.disparity.cols;
+	correspondences[i].global = {coordinates[0].at<float>(row, col), coordinates[1].at<float>(row, col), coordinates[2].at<float>(row, col)};
+	// cv::cv2eigen(Output4DPoints.col(i).rowRange(0, 3), correspondences[i].global);
   }
 }
