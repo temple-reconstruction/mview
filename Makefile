@@ -1,6 +1,6 @@
 CC = g++
-CFLAGS = -Wall -pedantic -O3
-CXXFLAGS = -std=c++14 -isystem /usr/include/eigen3
+CFLAGS = -Wall -pedantic
+CXXFLAGS = -std=c++14 -isystem /usr/local/include/eigen3/
 LDFLAGS =
 
 BINARY = mview
@@ -12,6 +12,7 @@ OBJ = main.o \
 	  read_dataset.o \
 	  read_image.o \
 	  rectify.o \
+		triangulate.o \
 
 LDLIBS = freeimage opencv_core opencv_calib3d opencv_imgproc
 

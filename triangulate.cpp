@@ -12,8 +12,8 @@ void triangulate(const Rectified &rectified, std::vector<Correspondence> &corres
 {
   
   cv::Mat Output4DPoints;
-  std::vector<cv::Point2f> left_projection_points, left_projection_points;
-  vector<cv::Point3d> points_3d;
+  std::vector<cv::Point2f> left_projection_points, right_projection_points;
+  std::vector<cv::Point3d> points_3d;
   
   // 2xN corresponding points from correspondences
   for (int i = 0; i < correspondences.size(); i++)
