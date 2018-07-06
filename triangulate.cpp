@@ -38,5 +38,4 @@ void triangulate(const Rectified &rectified, std::vector<Correspondence> &corres
   for (int i = 0; i < correspondences.size(); i++){
 	cv::cv2eigen(Output4DPoints.col(i).rowRange(0, 3), correspondences[i].global);
   }
-
 }

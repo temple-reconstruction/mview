@@ -59,7 +59,7 @@ std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>& r
 		std::cout << " Finding pixel matches\n";
 		auto correspondences = match(rectified_pair);
 		std::cout << " Triangulating coordinates\n";
-		// for(auto& correspondence : correspondences) 
+
 		triangulate(rectified_pair, correspondences);
 
 		Pointcloud pointcloud;
@@ -78,6 +78,4 @@ std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>& r
 	}
 	return output;
 }
-
-// void triangulate(const Rectified&, Correspondence&) { }
 
