@@ -32,15 +32,16 @@ auto read_image(CameraParameter cameraParameter) -> Image
 
 std::pair<GrayImage, RgbImage> ReadImageFromFile(std::string filename)
 {
+  std::cout << "Reading " << filename << std::endl;
   std::string linebuffer;
   int w = 3072, h = 2048;
 
   std::fstream file(filename, std::ios_base::in | std::ios_base::binary);
   file >> linebuffer >> w >> h >> linebuffer;
-  std::cout << "Reading image" << w << " " << h;
 
   std::vector<unsigned char> raw_bytes(w*h*3);
-  file.rdbuf()->sgetn((char*)raw_bytes.data(), raw_bytes.size());
+  auto read = file.rdbuf()->sgetn((char*)raw_bytes.data(), raw_bytes.size());
+  assert(read == raw_bytes.size());
 
   RgbImage rgb_target { h, w };
   for(int i = 0; i < w*h; i++)
