@@ -4,8 +4,8 @@
 #include <Eigen/Eigen>
 #include <opencv2/core.hpp>
 
-using GrayImage = Eigen::MatrixXf;
-using RgbImage = Eigen::Matrix<Eigen::Vector3f, Eigen::Dynamic, Eigen::Dynamic>;
+using GrayImage = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+using RgbImage = Eigen::Matrix<Eigen::Vector3f, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
 /// Read from the parameter file `<name>_par.txt`
 struct CameraParameter {
