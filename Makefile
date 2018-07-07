@@ -24,6 +24,6 @@ clean:
 	rm -f $(OBJ)
 	rm -f $(BINARY)
 
-%.o: %.cpp
+%.o: %.cpp mview.h
 	$(CC) -c $(CFLAGS) $(CXXFLAGS) $< -o $@
 
