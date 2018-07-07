@@ -33,9 +33,9 @@ Disparity match(const Rectified& rectified) {
 			const auto min = find_min_gray(pattern, pixel_right, i);
 
 			matches.push_back(match_to_correspondence(i, j, min));
-			distances(i - BLOCK_SIZE, j - BLOCK_SIZE) = static_cast<float>(j - min.colIndex); // /static_cast<float>(pixel_left.cols())*16.;
+			distances(i - BLOCK_SIZE, j - BLOCK_SIZE) = static_cast<short>(min.colIndex - j);
 			if(pixel_left(i, j) < 5./256.) {
-				distances(i - BLOCK_SIZE, j - BLOCK_SIZE) = -std::numeric_limits<float>::infinity();
+				distances(i - BLOCK_SIZE, j - BLOCK_SIZE) = 0; // -std::numeric_limits<float>::infinity();
 			}
 		}
 	}

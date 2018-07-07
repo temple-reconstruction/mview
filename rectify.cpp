@@ -131,6 +131,8 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
 	cv::imshow("right rectified", right_gray_mat);
 	cv::waitKey(0);
 
+	std::cout << Q << std::endl;
+
     //convert mat to eigen matrix
 	GrayImage left_gray_eigen(left_gray_mat.rows, left_gray_mat.cols);
     cv::cv2eigen(left_gray_mat,left_gray_eigen);

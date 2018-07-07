@@ -5,7 +5,7 @@ LDFLAGS =
 
 BINARY = mview
 OBJ = main.o \
-      match.o \
+      match_cv.o \
       align.o \
 	  ssd.o \
 	  write_mesh.o \
@@ -13,7 +13,7 @@ OBJ = main.o \
 	  rectify.o \
 	  triangulate.o \
 
-LDLIBS = freeimage opencv_core opencv_calib3d opencv_imgproc opencv_highgui
+LDLIBS = freeimage opencv_core opencv_calib3d opencv_imgproc opencv_highgui opencv_imgcodecs
 
 all: $(BINARY)
 
