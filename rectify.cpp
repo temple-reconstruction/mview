@@ -147,7 +147,8 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
                                  R1,
                                  R2,
                                  P1,
-                                 P2
+                                 P2,
+								 Q
 
 
 

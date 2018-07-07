@@ -56,7 +56,7 @@ std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>& r
 	std::vector<Pointcloud> output;
 	int i = 0;
 	for(const auto& rectified_pair : rectified_pairs) {
-		std::cout << " Finding pixel matches\n";
+		std::cout << " Finding pixel matches (" << rectified_pair.pixel_left_gray.rows() << "x" << rectified_pair.pixel_left_gray.cols() << ")\n";
 		auto disparity = match(rectified_pair);
 		std::cout << " Triangulating coordinates\n";
 
