@@ -41,7 +41,7 @@ bool write_mesh(std::ostream& outFile, Pointcloud pointcloud, bool use_face)
 
 	//save vertices
     for (int i=0;i<nVertices;i++){
-		if (!std::isfinite(pointcloud.points[i](0))){
+		if (!std::isfinite(pointcloud.points[i](0)) || pointcloud.points[i][2] > 100){
             outFile << "0 0 0 255 255 255 255" << std::endl;
 		}
 		else{

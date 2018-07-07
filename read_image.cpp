@@ -68,6 +68,9 @@ std::pair<GrayImage, RgbImage> ReadImageFromFile(std::string filename)
   for(int i = 0; i < w*h; i++)
     gray_target(i/w, i%w) = ColourToGray(data_vector.row(i));
 
+  // rgb_target = rgb_target.transpose().eval();
+  // gray_target = gray_target.transpose().eval();
+
   //Free FreeImage's copy of the data
   FreeImage_Unload(dib);
 

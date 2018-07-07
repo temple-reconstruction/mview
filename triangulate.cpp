@@ -14,6 +14,9 @@ void triangulate(const Rectified &rectified, Disparity& disparity)
 
   cv::Mat Output4DPoints;
   cv::reprojectImageTo3D(disparity.disparity, Output4DPoints, rectified.Q);
+
+  cv::Mat mask = disparity.disparity <= 0.;
+  Output4DPoints.setTo(cv::Vec3f(), mask);
   
   /*j
   const float scale_y = rectified.pixel_left_gray.cols();
@@ -70,15 +73,33 @@ void triangulate(const Rectified &rectified, Disparity& disparity)
 
   //TODO assert if size of correspondences is equal to number of Output4DPoints generated
   */
-
-  cv::Mat coordinates[3];
-  cv::split(Output4DPoints, coordinates);
   assert(correspondences.size() == disparity.disparity.cols * disparity.disparity.rows);
 
-  for (int i = 0; i < correspondences.size(); i++){
-	int col = i%disparity.disparity.cols;
-	int row = i/disparity.disparity.cols;
-	correspondences[i].global = {coordinates[0].at<float>(row, col), coordinates[1].at<float>(row, col), coordinates[2].at<float>(row, col)};
-	// cv::cv2eigen(Output4DPoints.col(i).rowRange(0, 3), correspondences[i].global);
+  cv::Mat extrinsics1;
+  cv::eigen2cv(rectified.extrinsics_left, extrinsics1);
+
+  cv::Mat global_parts[3];
+  cv::split(Output4DPoints, global_parts);
+  for(int i = 0; i < 3; i++)
+    global_parts[i] = global_parts[i].reshape(1, 1);
+
+  cv::Mat globals;
+  cv::vconcat(global_parts, 3, globals);
+
+  cv::Mat local_rotation(3, 3, CV_32F);
+  cv::Mat global_rotation(3, 3, CV_32F);
+  cv::Mat shift(3, 1, CV_32F);
+  rectified.R1.convertTo(local_rotation, CV_32F);
+  local_rotation = local_rotation.t();
+  global_rotation = extrinsics1(cv::Range(0, 3), cv::Range(0, 3)).t();
+  shift = - global_rotation * extrinsics1.col(3).rowRange(0, 3);
+
+  globals = local_rotation * globals;
+  globals = global_rotation * globals;
+  for(int i = 0; i < globals.cols; i++)
+    globals.col(i) += shift;
+
+  for (int i = 0; i < globals.cols; i++){
+	cv::cv2eigen(globals.col(i).rowRange(0, 3), correspondences[i].global);
   }
 }

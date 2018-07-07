@@ -3,6 +3,8 @@
 
 namespace /* local types */ {
 
+static std::string debug_name = "debug.disparity0.png";
+
 using Matches = std::vector<Correspondence>;
 using PixelCoordinates = Correspondence::PixelCoordinates;
 
@@ -33,15 +35,18 @@ Disparity match(const Rectified& rectified) {
 			const auto min = find_min_gray(pattern, pixel_right, i);
 
 			matches.push_back(match_to_correspondence(i, j, min));
-			distances(i - BLOCK_SIZE, j - BLOCK_SIZE) = static_cast<short>(min.colIndex - j);
+			distances(i - BLOCK_SIZE, j - BLOCK_SIZE) = static_cast<float>(min.colIndex - j);
 			if(pixel_left(i, j) < 5./256.) {
-				distances(i - BLOCK_SIZE, j - BLOCK_SIZE) = 0; // -std::numeric_limits<float>::infinity();
+				distances(i - BLOCK_SIZE, j - BLOCK_SIZE) = 0;
 			}
 		}
 	}
 
-	cv::imshow("distances", distances);
-	cv::waitKey(0);
+	cv::Mat disparity = distances.clone();
+	disparity *= 16.0f;
+	disparity.assignTo(disparity, CV_16U);
+	cv::imwrite(debug_name, disparity);
+	debug_name[15]++;
 
 	return { matches, distances };
 }

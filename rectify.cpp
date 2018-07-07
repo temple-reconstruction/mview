@@ -95,10 +95,10 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
     cv::Mat right_rgb_mat = convertRgbToOpenCV(right_rgb_pixels);
     cv::Mat left_intrinsics_mat,left_extrinsics_mat,right_intrinsics_mat,right_extrinsics_mat,R_mat,T_mat;
 
-	cv::namedWindow( "left", cv::WINDOW_NORMAL);
-	cv::namedWindow( "right", cv::WINDOW_NORMAL);
-	cv::imshow("left", left_gray_mat);
-	cv::imshow("right", right_gray_mat);
+	// cv::namedWindow( "left", cv::WINDOW_NORMAL);
+	// cv::namedWindow( "right", cv::WINDOW_NORMAL);
+	// cv::imshow("left", left_gray_mat);
+	// cv::imshow("right", right_gray_mat);
 
     cv::eigen2cv(left_intrinsics,left_intrinsics_mat);
     cv::eigen2cv(left_extrinsics,left_extrinsics_mat);
@@ -111,7 +111,7 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
 	T_mat.assignTo(T_mat, CV_64F);
 
     cv::Size imageSize = left_gray_mat.size();
-	cv::Size targetSize(left_gray_mat.cols/4., left_gray_mat.rows/4.);
+	cv::Size targetSize = imageSize; // (left_gray_mat.cols/4., left_gray_mat.rows/4.);
     cv::Mat R1,R2,P1,P2,Q;
     cv::stereoRectify(left_intrinsics_mat,{},right_intrinsics_mat,{},imageSize,R_mat,T_mat,R1,R2,P1,P2,Q,0,1,targetSize,0,0);
 
@@ -127,9 +127,9 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
 	right_gray_mat = right_gray_out;
 	// remap_rgb(right_rgb_mat, map3, map4);
 
-	cv::imshow("left rectified", left_gray_mat);
-	cv::imshow("right rectified", right_gray_mat);
-	cv::waitKey(0);
+	//cv::imshow("left rectified", left_gray_mat);
+	// cv::imshow("right rectified", right_gray_mat);
+	// cv::waitKey(0);
 
 	std::cout << Q << std::endl;
 
