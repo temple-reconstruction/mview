@@ -110,32 +110,23 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
 	R_mat.assignTo(R_mat, CV_64F);
 	T_mat.assignTo(T_mat, CV_64F);
 
-//    cv::MatSize size=left_gray_mat.size;
-
     cv::Size imageSize=left_gray_mat.size();
     cv::Mat R1,R2,P1,P2,Q;
-    std::vector<int > disCoeff(4,1);
-//    cv::stereoRectify(left_intrinsics_mat,disCoeff,right_intrinsics_mat,disCoeff,size,R1,R2,P1,P2,Q,);
     cv::stereoRectify(left_intrinsics_mat,{},right_intrinsics_mat,{},imageSize,R_mat,T_mat,R1,R2,P1,P2,Q,0,-1,imageSize,0,0);
 
     cv::Mat map1,map2;
-    cv::initUndistortRectifyMap(left_intrinsics_mat,disCoeff,R1,P1,imageSize,CV_32FC1,map1,map2);
+    cv::initUndistortRectifyMap(left_intrinsics_mat,{},R1,P1,imageSize,CV_32FC1,map1,map2);
     cv::remap(left_gray_mat,left_gray_mat,map1,map2,cv::INTER_NEAREST,cv::BORDER_CONSTANT);
-//	std::cout << left_gray_mat.channels() << " " << left_gray_mat.type() << " " << left_gray_mat.size() << "\n";
-//	std::cout << "Remapped gray\n";
 	remap_rgb(left_rgb_mat, map1, map2);
-//	std::cout << "Remapped rgb\n";
 
 	cv::imshow("left rectified", left_gray_mat);
 	cv::imshow("right rectified", right_gray_mat);
 	cv::waitKey(0);
 
     cv::Mat map3,map4;
-    cv::initUndistortRectifyMap(right_intrinsics_mat,disCoeff,R2,P2,imageSize,CV_32FC1,map3,map4);
+    cv::initUndistortRectifyMap(right_intrinsics_mat,{},R2,P2,imageSize,CV_32FC1,map3,map4);
     cv::remap(right_gray_mat,right_gray_mat,map3,map4,cv::INTER_NEAREST,cv::BORDER_CONSTANT);
-//	std::cout << "Remapped gray\n";
 	remap_rgb(right_rgb_mat, map3, map4);
-//	std::cout << "Remapped rgb\n";
 
     //convert mat to eigen matrix
 //    struct Rectified {
