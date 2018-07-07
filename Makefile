@@ -1,16 +1,12 @@
 CC = g++
-CFLAGS = -Wall -pedantic
-CXXFLAGS = -std=c++14 -isystem /usr/include/eigen3
+CFLAGS = -Wall -pedantic -O3
+CXXFLAGS = -std=c++14 -isystem /usr/include/eigen3/
 LDFLAGS =
 
 BINARY = mview
 OBJ = main.o \
-      match.o \
-      align.o \
-	  ssd.o \
-	  write_mesh.o \
 
-LDLIBS = freeimage
+LDLIBS = freeimage opencv_core opencv_calib3d opencv_imgproc opencv_imgcodecs opencv_ximgproc
 
 all: $(BINARY)
 
@@ -18,8 +14,9 @@ $(BINARY): $(OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) $(addprefix -l,$(LDLIBS)) -o $(BINARY)
 
 clean:
-	rm $(OBJ)
-	rm $(BINARY)
+	rm -f $(OBJ)
+	rm -f $(BINARY)
 
 %.o: %.cpp
 	$(CC) -c $(CFLAGS) $(CXXFLAGS) $< -o $@
+
