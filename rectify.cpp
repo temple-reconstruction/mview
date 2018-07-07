@@ -111,17 +111,18 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
 	T_mat.assignTo(T_mat, CV_64F);
 
     cv::Size imageSize = left_gray_mat.size();
+	cv::Size targetSize(left_gray_mat.cols/4., left_gray_mat.rows/4.);
     cv::Mat R1,R2,P1,P2,Q;
-    cv::stereoRectify(left_intrinsics_mat,{},right_intrinsics_mat,{},imageSize,R_mat,T_mat,R1,R2,P1,P2,Q,0,-1,imageSize,0,0);
+    cv::stereoRectify(left_intrinsics_mat,{},right_intrinsics_mat,{},imageSize,R_mat,T_mat,R1,R2,P1,P2,Q,0,1,targetSize,0,0);
 
     cv::Mat map1,map2, left_gray_out;
-    cv::initUndistortRectifyMap(left_intrinsics_mat,{},R1,P1,imageSize,CV_32FC1,map1,map2);
+    cv::initUndistortRectifyMap(left_intrinsics_mat,{},R1,P1,targetSize,CV_32FC1,map1,map2);
     cv::remap(left_gray_mat,left_gray_out,map1,map2,cv::INTER_NEAREST,cv::BORDER_CONSTANT);
 	left_gray_mat = left_gray_out;
 	// remap_rgb(left_rgb_mat, map1, map2);
 
     cv::Mat map3,map4, right_gray_out;
-    cv::initUndistortRectifyMap(right_intrinsics_mat,{},R2,P2,imageSize,CV_32FC1,map3,map4);
+    cv::initUndistortRectifyMap(right_intrinsics_mat,{},R2,P2,targetSize,CV_32FC1,map3,map4);
     cv::remap(right_gray_mat,right_gray_out,map3,map4,cv::INTER_NEAREST,cv::BORDER_CONSTANT);
 	right_gray_mat = right_gray_out;
 	// remap_rgb(right_rgb_mat, map3, map4);
@@ -131,15 +132,17 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
 	cv::waitKey(0);
 
     //convert mat to eigen matrix
-    cv::cv2eigen(left_gray_mat,left_gray_pixels);
+	GrayImage left_gray_eigen(left_gray_mat.rows, left_gray_mat.cols);
+    cv::cv2eigen(left_gray_mat,left_gray_eigen);
     //left_rgb_pixels=convertOpenCVToRgb(left_rgb_mat);
 
-    cv::cv2eigen(right_gray_mat,right_gray_pixels);
+	GrayImage right_gray_eigen(right_gray_mat.rows, right_gray_mat.cols);
+    cv::cv2eigen(right_gray_mat,right_gray_eigen);
     //right_rgb_pixels=convertOpenCVToRgb(right_rgb_mat);
 
     Rectified rectified = {
-            /*.pixel_left_gray=*/left_gray_pixels,
-            /*.pixel_right_gray=*/right_gray_pixels,
+            /*.pixel_left_gray=*/left_gray_eigen,
+            /*.pixel_right_gray=*/right_gray_eigen,
             /*.pixel_left_rgb=*/left_rgb_pixels,
             /*.pixel_right_rgb=*/right_rgb_pixels,
                                  left_extrinsics,
