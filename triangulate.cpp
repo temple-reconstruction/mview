@@ -91,8 +91,9 @@ void triangulate(const Rectified &rectified, Disparity& disparity)
   cv::Mat shift(3, 1, CV_32F);
   rectified.R1.convertTo(local_rotation, CV_32F);
   local_rotation = local_rotation.t();
+
   global_rotation = extrinsics1(cv::Range(0, 3), cv::Range(0, 3)).t();
-  shift = - global_rotation * extrinsics1.col(3).rowRange(0, 3);
+  shift = -global_rotation * extrinsics1.col(3).rowRange(0, 3);
 
   globals = local_rotation * globals;
   globals = global_rotation * globals;

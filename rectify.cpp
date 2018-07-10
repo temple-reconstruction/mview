@@ -127,11 +127,13 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
 	right_gray_mat = right_gray_out;
 	// remap_rgb(right_rgb_mat, map3, map4);
 
-	//cv::imshow("left rectified", left_gray_mat);
-	// cv::imshow("right rectified", right_gray_mat);
+	// cv::imshow("left rectified", left_gray_mat.t());
+	// cv::imshow("right rectified", right_gray_mat.t());
 	// cv::waitKey(0);
+	// k
 
-	std::cout << Q << std::endl;
+	std::cout << "Debugging rectification results\n";
+	std::cout << "R1 " << R1 << "\nR2 " << R2 << "\nP1 " << P1 << "\nP2" << P2 << "\nQ " << Q << std::endl;
 
     //convert mat to eigen matrix
 	GrayImage left_gray_eigen(left_gray_mat.rows, left_gray_mat.cols);
