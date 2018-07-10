@@ -9,6 +9,7 @@ auto align(std::vector<Pointcloud> pointclouds) -> Pointcloud {
 		Pointcloud aligned = align_to_existing(output, pointcloud);
 		merge_pointcloud_into(output, aligned);
 	}
+	return output;
 }
 
 Pointcloud align_to_existing(const Pointcloud& reference, const Pointcloud& to_align) {
