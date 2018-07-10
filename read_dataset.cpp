@@ -7,9 +7,14 @@
 #include <istream>
 #include <string>
 
+static const std::string data_directory = "data/templeRing/";
+
+std::string dataset_file() {
+	return data_directory + "templeR_par.txt";
+}
+
 // read dataset from istream using file
 auto read_dataset(std::istream& inputfile) -> std::vector<CameraParameter>{
-
     std::vector<CameraParameter> cameraParameters;
     std::string line;
     if(!inputfile){
@@ -20,7 +25,10 @@ auto read_dataset(std::istream& inputfile) -> std::vector<CameraParameter>{
     while (getline(inputfile,line)){
         CameraParameter cameraParameter;
         std::istringstream iss(line);
-        iss>>cameraParameter.filename;
+
+        iss >> cameraParameter.filename;
+		cameraParameter.filename = data_directory + cameraParameter.filename;
+
         std::string s;
         std::string ss[21];
         int i=0;

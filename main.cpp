@@ -3,7 +3,6 @@
 
 #include "mview.h"
 
-static const std::string data_directory = "data/templeRing/";
 static std::vector<Image> read_images(std::vector<CameraParameter> samples);
 static std::vector<Rectified> rectified_pairs(const std::vector<Image>& images);
 static std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>&);
@@ -17,7 +16,7 @@ static void for_each_pair(T begin, T end, F functor) {
 }
 
 int main() {
-	std::fstream parameter_file(data_directory + "templeR_par.txt", std::ios_base::in);
+	std::fstream parameter_file(dataset_file(), std::ios_base::in);
 	std::cout << "Reading dataset\n";
 	const auto dataset = read_dataset(parameter_file);
 	std::cout << "Reading images\n";
@@ -37,7 +36,6 @@ std::vector<Image> read_images(std::vector<CameraParameter> samples) {
 	std::vector<Image> output;
 	output.reserve(samples.size());
 	for(auto& parameter : samples) {
-		parameter.filename = data_directory + parameter.filename;
 		output.push_back(read_image(parameter));
 	}
 	return output;

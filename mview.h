@@ -101,6 +101,8 @@ void triangulate(const Rectified&, Disparity&);
 ///@ And, Yue
 auto align(std::vector<Pointcloud>) -> Pointcloud;
 
+std::string dataset_file();
+
 ///@ Yu
 auto read_dataset(std::istream&) -> std::vector<CameraParameter>;
 
