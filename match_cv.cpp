@@ -8,6 +8,7 @@ static int debug_count = 0;
 
 Disparity match(const Rectified& rectified) {
 	// If the images are vertically aligned, we transpose for matching
+	bool vertical = false; // rectified.P2.at<float>(1, 3) != 0;
 	std::stringstream debug_name;
 	std::string debug_left = ((debug_name << "debug.rectified" << debug_count << ".left.png"), debug_name.str()); debug_name.str("");
 	std::string debug_right = ((debug_name << "debug.rectified" << debug_count << ".right.png"), debug_name.str()); debug_name.str("");
@@ -16,6 +17,11 @@ Disparity match(const Rectified& rectified) {
 
 	GrayImage pixel_left = rectified.pixel_left_gray;
 	GrayImage pixel_right = rectified.pixel_right_gray;
+
+	if(vertical) {
+		pixel_left = pixel_left.transpose().eval();
+		pixel_right = pixel_right.transpose().eval();
+	}
 
 	cv::Mat left_mat, right_mat;
 	cv::eigen2cv(pixel_left, left_mat);
@@ -26,11 +32,13 @@ Disparity match(const Rectified& rectified) {
 	left_mat.assignTo(left_mat, CV_8UC1);
 	right_mat.assignTo(right_mat, CV_8UC1);
 
-	cv::Ptr<cv::StereoBM> stereo = cv::StereoBM::create(64, 5);
+	cv::Ptr<cv::StereoBM> stereo = cv::StereoBM::create(32, 7);
 	stereo->setMinDisparity(0);
 
 	Disparity output;
 	stereo->compute(left_mat, right_mat, output.disparity);
+	if(vertical)
+		output.disparity = output.disparity.t();
 
 	cv::imwrite(debug_left, left_mat);
 	cv::imwrite(debug_right, right_mat);

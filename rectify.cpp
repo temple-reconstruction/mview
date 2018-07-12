@@ -87,10 +87,6 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
     cv::Mat right_rgb_mat = convertRgbToOpenCV(right_rgb_pixels);
     cv::Mat left_intrinsics_mat, right_intrinsics_mat, R_mat, T_mat;
 
-	cv::imshow("debug.left", left_gray_mat);
-	cv::imshow("debug.right", right_gray_mat);
-	cv::waitKey(0);
-
     cv::eigen2cv(left.intrinsics,left_intrinsics_mat);
     cv::eigen2cv(right.intrinsics,right_intrinsics_mat);
 
@@ -103,7 +99,9 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
     cv::Size imageSize = left_gray_mat.size();
 	cv::Size targetSize = imageSize; // (left_gray_mat.cols/4., left_gray_mat.rows/4.);
     cv::Mat R1,R2,P1,P2,Q;
-    cv::stereoRectify(left_intrinsics_mat,{},right_intrinsics_mat,{},imageSize,R_mat,T_mat,R1,R2,P1,P2,Q,cv::CALIB_ZERO_DISPARITY,-1,targetSize,0,0);
+    cv::stereoRectify(left_intrinsics_mat,{},right_intrinsics_mat,{},imageSize,R_mat,T_mat,R1,R2,P1,P2,Q,
+			cv::CALIB_ZERO_DISPARITY,
+		   	1,targetSize,0,0);
 
     cv::Mat map1,map2, left_gray_out;
     cv::initUndistortRectifyMap(left_intrinsics_mat,{},R1,P1,targetSize,CV_32FC1,map1,map2);
