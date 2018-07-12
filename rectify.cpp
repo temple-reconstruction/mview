@@ -69,17 +69,14 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
     GrayImage right_gray_pixels=right.gray_pixels;
     RgbImage right_rgb_pixels=right.rgb_pixels;
 
-	Eigen::Matrix4f left_to_right = (right.extrinsics * left.extrinsics.inverse()).inverse();
+	Eigen::Matrix4f left_to_right = right.extrinsics * left.extrinsics.inverse();
 	for(int i = 0; i < 3; i++)
 		assert(left_to_right(3, i) == 0);
 	assert(left_to_right(3, 3) == 1.0);
 
-    //rotation and transformation from left image to right image
+    //rotation and transformation from left camera to right camera
     Eigen::Matrix3f R = left_to_right.block<3, 3>(0, 0);
-    Eigen::Vector3f T = left_to_right.block<3, 1>(0, 3);
-//
-//    //compute Rotation matrix of rectification
-//    Eigen::Vector3f e1=T/T.
+    Eigen::Vector3f T = R.transpose() * left_to_right.block<3, 1>(0, 3);
 
     //convert eigen matrix to mat
     cv::Mat left_gray_mat;
@@ -90,8 +87,6 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
     cv::Mat right_rgb_mat = convertRgbToOpenCV(right_rgb_pixels);
     cv::Mat left_intrinsics_mat, right_intrinsics_mat, R_mat, T_mat;
 
-	// cv::namedWindow( "left", cv::WINDOW_NORMAL);
-	// cv::namedWindow( "right", cv::WINDOW_NORMAL);
 	cv::imshow("debug.left", left_gray_mat);
 	cv::imshow("debug.right", right_gray_mat);
 	cv::waitKey(0);
@@ -108,7 +103,7 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
     cv::Size imageSize = left_gray_mat.size();
 	cv::Size targetSize = imageSize; // (left_gray_mat.cols/4., left_gray_mat.rows/4.);
     cv::Mat R1,R2,P1,P2,Q;
-    cv::stereoRectify(left_intrinsics_mat,{},right_intrinsics_mat,{},imageSize,R_mat,T_mat,R1,R2,P1,P2,Q,0,-1,targetSize,0,0);
+    cv::stereoRectify(left_intrinsics_mat,{},right_intrinsics_mat,{},imageSize,R_mat,T_mat,R1,R2,P1,P2,Q,cv::CALIB_ZERO_DISPARITY,-1,targetSize,0,0);
 
     cv::Mat map1,map2, left_gray_out;
     cv::initUndistortRectifyMap(left_intrinsics_mat,{},R1,P1,targetSize,CV_32FC1,map1,map2);

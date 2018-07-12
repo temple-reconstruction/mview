@@ -3,6 +3,8 @@
 #include <fstream>
 #include <Eigen/Dense>
 #include <opencv2/core.hpp>
+#include <opencv2/core/eigen.hpp>
+#include <opencv2/imgcodecs.hpp>
 
 static std::pair<GrayImage, RgbImage> ReadImageFromFile(std::string);
 static float ColourToGray(Eigen::Vector3f rgb);
@@ -62,23 +64,12 @@ Image read_image(CameraParameter cameraParameter) {
 
 std::pair<GrayImage, RgbImage> ReadImageFromFile(std::string filename) {
 	std::cout << filename << std::endl;
-	cv::Mat rgb_mat = cv::imread(filename);
+	cv::Mat rgb_mat = cv::imread(filename, cv::IMREAD_COLOR);
+	rgb_mat.assignTo(rgb_mat, CV_32F);
+	rgb_mat /= 255.;
 
-	// Eigen stores column major by default, we prefer pixel samples in row major.
-	using PixelSampleMatrix = Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>;
-
-	// Map the pixel values skipping the alpha value by a larger stride.
-	using PixelSamples = Eigen::Map<PixelSampleMatrix, 0, Eigen::Stride<4, 1>>;
-	PixelSamples data_vector { reinterpret_cast<float*>(bits), w*h, 3 };
-
-	RgbImage rgb_target { h, w };
-	for(int i = 0; i < w*h; i++)
-		rgb_target(h - 1 - i/w, i%w) = data_vector.row(i);
-
+	RgbImage rgb_target = convertOpenCVToRgb(rgb_mat);
 	GrayImage gray_target = rgb_target.unaryExpr([](auto pixel) { return ColourToGray(pixel); }); 
-
-	//Free FreeImage's copy of the data
-	FreeImage_Unload(dib);
 
 	return {gray_target, rgb_target};
 }
@@ -91,22 +82,26 @@ float ColourToGray(Eigen::Vector3f rgb) {
 }
 
 RgbImage convertOpenCVToRgb(const cv::Mat rgbMat){
-    std::array<cv::Mat, 3> rgb;
-    cv::split(rgbMat,rgb.data());
-    GrayImage r,g,b;
-    cv::cv2eigen(rgb[0],r);
-    cv::cv2eigen(rgb[1],g);
-    cv::cv2eigen(rgb[2],b);
+    cv::Mat rgb[3];
+    cv::split(rgbMat, rgb);
+
+	int width = rgbMat.cols;
+	int height = rgbMat.rows;
+    GrayImage r(height, width), g(height, width), b(height, width);
+
+    cv::cv2eigen(rgb[0], r);
+    cv::cv2eigen(rgb[1], g);
+    cv::cv2eigen(rgb[2], b);
+	std::cout << "converted\n";
 
     RgbImage rgbImage (g.rows(), g.cols());
-// Eigen::Matrix<Eigen::Vector3f,480,640> rgbImage;
-//    rgbImage.setZero();
+
     for(int row=0;row<g.rows();row++){
         for(int col=0;col<g.cols();col++){
             rgbImage(row,col)<<r(row,col),g(row,col),b(row,col);
         }
     }
-//    std::cout<<rgbImage.rows()<<std::endl;
+
     return rgbImage;
 }
 
