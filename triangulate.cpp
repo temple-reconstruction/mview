@@ -15,7 +15,7 @@ void triangulate(const Rectified &rectified, Disparity& disparity)
   cv::Mat Output4DPoints;
   cv::reprojectImageTo3D(disparity.disparity, Output4DPoints, rectified.Q);
 
-  cv::Mat mask = disparity.disparity <= 0.;
+  cv::Mat mask = disparity.disparity <= -1000.;
   Output4DPoints.setTo(cv::Vec3f(), mask);
   
   /*j
