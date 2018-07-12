@@ -9,6 +9,10 @@ static CameraParameter ReadCameraParameterSet(std::string);
 static std::pair<GrayImage, RgbImage> ReadImageFromFile(std::string);
 static float ColourToGray(Eigen::Vector3f rgb);
 
+std::string dataset_file() {
+	return "data/rathaus/parameter.txt";
+}
+
 auto read_dataset(std::istream& inputfile) -> std::vector<CameraParameter> {
     std::vector<CameraParameter> cameraParameters;
     std::string line;

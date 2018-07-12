@@ -7,3 +7,7 @@ for file in ./data/rathaus/*.camera; do
 	echo >> ./data/rathaus/parameter.txt
 done
 
+rm -rf ./data/output640x480/parameter.txt
+for file in $(ls ./data/output640x480/*.jpg); do
+	echo "${file%.jpg}" >> ./data/output640x480/parameter.txt;
+done

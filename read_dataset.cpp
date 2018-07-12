@@ -70,3 +70,4 @@ auto read_dataset(std::istream& inputfile) -> std::vector<CameraParameter>{
 
     return cameraParameters;
 }
+
