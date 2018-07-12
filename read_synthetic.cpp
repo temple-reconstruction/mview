@@ -48,11 +48,13 @@ Image read_image(CameraParameter cameraParameter) {
 	*/
 	const float image_width = image.gray_pixels.cols();
 	const float image_height = image.gray_pixels.rows();
+	std::cout << image_width << "x" << image_height << "\n";
 	image.intrinsics.setIdentity();
 	image.intrinsics(0, 0) = image_width*4.1/4.54;
 	image.intrinsics(1, 1) = image_height*4.1/3.42;
 	image.intrinsics(0, 2) = image_width/2.;
 	image.intrinsics(1, 2) = image_height/2.;
+	std::cout << image.intrinsics << "\n";
 
 	return image;
 }
@@ -104,7 +106,7 @@ std::pair<GrayImage, RgbImage> ReadImageFromFile(std::string filename) {
 
 	RgbImage rgb_target { h, w };
 	for(int i = 0; i < w*h; i++)
-		rgb_target(i/w, i%w) = data_vector.row(i);
+		rgb_target(h - 1 - i/w, i%w) = data_vector.row(i);
 
 	GrayImage gray_target = rgb_target.unaryExpr([](auto pixel) { return ColourToGray(pixel); }); 
 

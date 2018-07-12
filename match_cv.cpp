@@ -37,7 +37,6 @@ Disparity match(const Rectified& rectified) {
 
 	cv::imwrite(debug_left, left_mat);
 	cv::imwrite(debug_right, right_mat);
-	cv::imwrite(debug_disparity, output.disparity);
 
 	for(int i = 0; i < output.disparity.rows; i++)
 		for(int j = 0; j < output.disparity.cols; j++)
@@ -45,6 +44,8 @@ Disparity match(const Rectified& rectified) {
 
 	output.disparity.assignTo(output.disparity, CV_32F);
 	output.disparity /= 16.;
+
+	cv::imwrite(debug_disparity, (output.disparity - stereo->getMinDisparity())/stereo->getNumDisparities()*255.);
 	output.disparity.setTo(-1000., output.disparity < stereo->getMinDisparity());
 
 	return output;
