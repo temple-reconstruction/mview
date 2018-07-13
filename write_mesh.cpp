@@ -12,7 +12,7 @@ static float dist(Eigen::Vector3f a, Eigen::Vector3f b) {
     return (a - b).norm();
 }
 
-bool write_mesh(std::ostream& outFile, Pointcloud pointcloud, bool use_face)
+bool write_mesh(std::ostream& outFile, const Pointcloud& pointcloud, bool use_face)
 {
 	float edgeThreshold = 0.00001f;
 
@@ -45,8 +45,9 @@ bool write_mesh(std::ostream& outFile, Pointcloud pointcloud, bool use_face)
             outFile << "0 0 0 255 255 255 255" << std::endl;
 		}
 		else{
-			outFile << pointcloud.points[i](0) << " " << pointcloud.points[i](1) << " " << pointcloud.points[i](2) << " " << std::endl;
-			 // pointcloud.colours[i](0) << " " << pointcloud.colours[i](1) << " " << pointcloud.colours[i](2) << " " << pointcloud.colours[i](3) << std::endl;
+			outFile << pointcloud.points[i](0) << " " << pointcloud.points[i](1) << " " << pointcloud.points[i](2) << " "
+			 	<< pointcloud.colours[i](0) << " " << pointcloud.colours[i](1) << " " << pointcloud.colours[i](2) << " " << pointcloud.colours[i](3) 
+				<< std::endl;
 		}
 	}
 

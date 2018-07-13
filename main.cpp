@@ -62,8 +62,10 @@ std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>& r
 
 		Pointcloud pointcloud;
 		std::cout << " Creating pointcloud\n";
-		for(auto& correspondence : disparity.correspondences) 
+		for(auto& correspondence : disparity.correspondences) {
 			pointcloud.points.push_back(correspondence.global);
+			pointcloud.colours.push_back(correspondence.colour);
+		}
 
 		std::stringstream debug_name;
 		debug_name << "output_debug" << i++ << ".off";

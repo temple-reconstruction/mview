@@ -102,8 +102,8 @@ void triangulate(const Rectified &rectified, Disparity& disparity)
 
   assert(correspondences.size() == disparity.disparity.cols * disparity.disparity.rows);
   for (int i = 0; i < globals.cols; i++){
-	int x = i%disparity.disparity.cols;
-	int y = i/disparity.disparity.cols;
+	int x = i/disparity.disparity.cols;
+	int y = i%disparity.disparity.cols;
 	auto& correspondence = correspondences[i];
 
 	cv::cv2eigen(globals.col(i).rowRange(0, 3), correspondence.global);
