@@ -83,17 +83,17 @@ float ColourToGray(Eigen::Vector3f rgb) {
 	return gamma_correct.dot(Eigen::Vector3f { .2126, .7152, .0722 });
 }
 
-RgbImage convertOpenCVToRgb(const cv::Mat rgbMat){
-    cv::Mat rgb[3];
-    cv::split(rgbMat, rgb);
+RgbImage convertOpenCVToRgb(const cv::Mat imageMat){
+    cv::Mat bgr[3];
+    cv::split(imageMat, bgr);
 
-	int width = rgbMat.cols;
-	int height = rgbMat.rows;
+	int width = imageMat.cols;
+	int height = imageMat.rows;
     GrayImage r(height, width), g(height, width), b(height, width);
 
-    cv::cv2eigen(rgb[0], r);
-    cv::cv2eigen(rgb[1], g);
-    cv::cv2eigen(rgb[2], b);
+    cv::cv2eigen(bgr[2], r);
+    cv::cv2eigen(bgr[1], g);
+    cv::cv2eigen(bgr[0], b);
 	std::cout << "converted\n";
 
     RgbImage rgbImage (g.rows(), g.cols());
