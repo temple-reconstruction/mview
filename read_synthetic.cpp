@@ -20,7 +20,7 @@ std::vector<CameraParameter> read_dataset(std::istream& parameter) {
 	std::vector<CameraParameter> output;
 	std::string line;
 
-	for(int i = 0; i < 30 && std::getline(parameter, line); i++) {
+	for(int i = 0; i < 100 && std::getline(parameter, line); i++) {
 		if(i%2 != 0)
 			continue;
 		CameraParameter camera;

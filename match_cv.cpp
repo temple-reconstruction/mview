@@ -32,8 +32,12 @@ Disparity match(const Rectified& rectified) {
 	left_mat.assignTo(left_mat, CV_8UC1);
 	right_mat.assignTo(right_mat, CV_8UC1);
 
-	cv::Ptr<cv::StereoBM> stereo = cv::StereoBM::create(32, 7);
-	stereo->setMinDisparity(0);
+	cv::Ptr<cv::StereoSGBM> stereo = cv::StereoSGBM::create(0, 32, 7,
+			8, 32,
+			0, 0,
+			15,
+		   	50, 1);
+	// stereo->setMinDisparity(0);
 
 	Disparity output;
 	stereo->compute(left_mat, right_mat, output.disparity);
