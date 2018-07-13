@@ -59,7 +59,7 @@ struct Correspondence {
 
 	// Reconstructed global coordinates, filled later through triangulate.
 	Eigen::Vector3f global;
-	Eigen::Vector4d colour;
+	Eigen::Vector4f colour;
 };
 
 struct Disparity {

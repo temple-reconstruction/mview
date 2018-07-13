@@ -100,7 +100,13 @@ void triangulate(const Rectified &rectified, Disparity& disparity)
   for(int i = 0; i < globals.cols; i++)
     globals.col(i) += shift;
 
+  assert(correspondences.size() == disparity.disparity.cols * disparity.disparity.rows);
   for (int i = 0; i < globals.cols; i++){
-	cv::cv2eigen(globals.col(i).rowRange(0, 3), correspondences[i].global);
+	int x = i%disparity.disparity.cols;
+	int y = i/disparity.disparity.cols;
+	auto& correspondence = correspondences[i];
+
+	cv::cv2eigen(globals.col(i).rowRange(0, 3), correspondence.global);
+	correspondence.colour.block<3, 1>(0, 0) = rectified.pixel_left_rgb(x, y);
   }
 }
