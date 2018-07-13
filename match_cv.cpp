@@ -6,6 +6,38 @@
 
 static int debug_count = 0;
 
+static Disparity match(const Rectified& rectified);
+
+namespace {
+
+class CvMatcher : public Matcher {
+public:
+	CvMatcher();
+	~CvMatcher() override { }
+	Disparity match(const Rectified&) override final;
+private:
+	cv::Ptr<cv::StereoSGBM> inner;
+};
+
+}
+
+CvMatcher::CvMatcher() {
+	inner = cv::StereoSGBM::create(0, 32, 7,
+			8, 32,
+			0, 0,
+			15,
+		   	50, 1);
+}
+
+Disparity CvMatcher::match(const Rectified& rectified) {
+	return ::match(rectified);
+}
+
+std::unique_ptr<Matcher> make_matcher() {
+	std::unique_ptr<Matcher> value = std::make_unique<CvMatcher>();
+	return std::move(value);
+}
+
 Disparity match(const Rectified& rectified) {
 	// If the images are vertically aligned, we transpose for matching
 	bool vertical = false; // rectified.P2.at<float>(1, 3) != 0;

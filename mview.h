@@ -1,6 +1,8 @@
 #pragma once
-#include <vector>
+#include <memory>
 #include <ostream>
+#include <vector>
+
 #include <Eigen/Eigen>
 #include <opencv2/core.hpp>
 
@@ -91,8 +93,26 @@ float ssd_cost_rgb(RgbImageView left, RgbImageView right);
 ///@author Yu
 auto rectify(const Image& left, const Image& right) -> Rectified;
 
+class Matcher {
+public:
+	virtual ~Matcher() { };
+	virtual Disparity match(const Rectified&) = 0;
+};
+
+namespace std {
+	template<>
+	struct default_delete<Matcher> {
+		default_delete() noexcept = default;
+		template<typename T,typename=
+			typename std::enable_if<std::is_convertible<T*,Matcher*>::value>::type>
+		default_delete(const default_delete<T>&) noexcept
+			{ }
+		void operator()(Matcher*) const;
+	};
+}
+
 ///@autor And
-auto match(const Rectified&) -> Disparity;
+std::unique_ptr<Matcher> make_matcher();
 
 ///@ Sri
 /// Fill the missing global coordinate in the correspondence.

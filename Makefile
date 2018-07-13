@@ -5,6 +5,7 @@ LDFLAGS =
 
 BINARY = mview
 OBJ = main.o \
+	  matcher.o \
       match_cv.o \
       align.o \
 	  ssd.o \
