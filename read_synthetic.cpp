@@ -21,8 +21,6 @@ std::vector<CameraParameter> read_dataset(std::istream& parameter) {
 	std::string line;
 
 	for(int i = 0; i < 100 && std::getline(parameter, line); i++) {
-		if(i%2 != 0)
-			continue;
 		CameraParameter camera;
 		std::ifstream matrix_file(line+".dat");
 

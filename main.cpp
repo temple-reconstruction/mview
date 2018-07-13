@@ -8,10 +8,13 @@ static std::vector<Rectified> rectified_pairs(const std::vector<Image>& images);
 static std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>&);
 
 template<typename T, typename F>
-static void for_each_pair(T begin, T end, F functor) {
+static void for_each_pair(T begin, T end, F functor, int spacing=0) {
 	if(begin == end)
 		return;
-	for(T first=begin++; begin != end; first++,begin++)
+	T first = begin;
+	for(int i = 0; i <= spacing && begin != end; i++)
+		begin++;
+	for(;begin != end; first++,begin++)
 		functor(*first, *begin);
 }
 
@@ -46,7 +49,7 @@ std::vector<Rectified> rectified_pairs(const std::vector<Image>& images) {
  	output.reserve(images.size());
 	for_each_pair(images.begin(), images.end(), [&](const Image& left, const Image& right) {
 		output.push_back(rectify(left, right));
-	});
+	}, 2);
 	return output;
 }
 
