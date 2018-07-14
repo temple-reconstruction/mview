@@ -6,6 +6,8 @@
 #include <Eigen/Eigen>
 #include <opencv2/core.hpp>
 
+#include "sdf.h"
+
 using GrayImage = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 using RgbImage = Eigen::Matrix<Eigen::Vector3f, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 using PointImage = Eigen::Matrix<Eigen::Vector3f, Eigen::Dynamic, Eigen::Dynamic>;
@@ -147,3 +149,5 @@ auto read_image(CameraParameter) -> Image;
 ///@ Yue
 bool write_mesh(std::ostream& filename, const Pointcloud& pointcloud, bool use_face=false);
 
+///@ And
+void integrate(SdfIntegrator&, const Pointcloud&);
