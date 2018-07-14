@@ -4,9 +4,10 @@ static Pointcloud align_to_existing(const Pointcloud& reference, const Pointclou
 static void merge_pointcloud_into(Pointcloud& target, Pointcloud input);
 
 Pointcloud globalize(const Triangulated& triangulated) {
+	Eigen::Matrix4f image_to_global = triangulated.extrinsics.inverse();
 	PointImage global = triangulated.points.unaryExpr([&](Eigen::Vector3f point) -> Eigen::Vector3f {
-			return triangulated.extrinsics.block<3, 3>(0, 0) * point 
-				+ triangulated.extrinsics.block<3, 1>(0, 3);
+			return image_to_global.block<3, 3>(0, 0) * point 
+				+ image_to_global.block<3, 1>(0, 3);
 		});
 
 	Pointcloud pointcloud;

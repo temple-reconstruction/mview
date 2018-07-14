@@ -73,11 +73,14 @@ struct Disparity {
 	cv::Mat disparity;
 };
 
+/// Points reconstructed from disparity.
 struct Triangulated {
 	PointImage points;
 	ColourImage colour;
 
+	// Worlds to camera extrinsics.
 	Eigen::Matrix4f extrinsics;
+	Eigen::Matrix3f intrinsics;
 };
 
 /// A rectangular area of pixel in an image.

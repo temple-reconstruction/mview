@@ -25,13 +25,16 @@ Triangulated triangulate(const Rectified &rectified, const Disparity& disparity)
   cv::vconcat(point_parts, 3, points);
 
   Eigen::Matrix3f local_rotation;
-  cv::cv2eigen(rectified.R1.t(), local_rotation);
+  cv::cv2eigen(rectified.R1, local_rotation);
   Eigen::Matrix4f local_extrinsics;
   local_extrinsics.setIdentity();
   local_extrinsics.block<3, 3>(0, 0) = local_rotation;
 
-  Eigen::Matrix4f global_extrinsics = rectified.extrinsics_left.inverse();
-  Eigen::Matrix4f extrinsics = global_extrinsics * local_extrinsics;
+  Eigen::Matrix4f global_extrinsics = rectified.extrinsics_left;
+  Eigen::Matrix4f extrinsics = local_extrinsics * global_extrinsics;
+
+  Eigen::Matrix3f intrinsics;
+  cv::cv2eigen(rectified.P1.colRange(0, 3), intrinsics);
 
   std::cout << extrinsics << std::endl;
 
@@ -48,5 +51,5 @@ Triangulated triangulate(const Rectified &rectified, const Disparity& disparity)
 	colour_image(x, y).block<3, 1>(0, 0) = rectified.pixel_left_rgb(x, y);
   }
 
-  return { point_image, colour_image, extrinsics };
+  return { point_image, colour_image, extrinsics, intrinsics };
 }
