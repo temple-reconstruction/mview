@@ -6,6 +6,7 @@ LDFLAGS =
 BINARY = mview
 OBJ = main.o \
 	  matcher.o \
+	  patch_match.o \
       match_cv.o \
       align.o \
 	  ssd.o \
