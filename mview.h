@@ -8,6 +8,8 @@
 
 using GrayImage = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 using RgbImage = Eigen::Matrix<Eigen::Vector3f, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+using PointImage = Eigen::Matrix<Eigen::Vector3f, Eigen::Dynamic, Eigen::Dynamic>;
+using ColourImage = Eigen::Matrix<Eigen::Vector4f, Eigen::Dynamic, Eigen::Dynamic>;
 
 /// Read from the parameter file `<name>_par.txt`
 struct CameraParameter {
@@ -69,6 +71,13 @@ struct Disparity {
 	cv::Mat disparity;
 };
 
+struct Triangulated {
+	PointImage points;
+	ColourImage colour;
+
+	Eigen::Matrix4f extrinsics;
+};
+
 /// A rectangular area of pixel in an image.
 struct GrayImageView {
 	const GrayImage& image;
@@ -116,7 +125,9 @@ std::unique_ptr<Matcher> make_matcher();
 
 ///@ Sri
 /// Fill the missing global coordinate in the correspondence.
-void triangulate(const Rectified&, Disparity&);
+Triangulated triangulate(const Rectified&, const Disparity&);
+
+Pointcloud globalize(const Triangulated&);
 
 ///@ And, Yue
 auto align(std::vector<Pointcloud>) -> Pointcloud;
