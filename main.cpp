@@ -5,7 +5,7 @@
 
 static std::vector<Image> read_images(std::vector<CameraParameter> samples);
 static std::vector<Rectified> rectified_pairs(const std::vector<Image>& images);
-static std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>&);
+static std::pair<std::vector<Pointcloud>, SdfIntegrator> rectified_integration(const std::vector<Rectified>&);
 
 template<typename T, typename F>
 static void for_each_pair(T begin, T end, F functor, int spacing=0) {
@@ -27,7 +27,9 @@ int main() {
 	std::cout << "Rectifying images\n";
 	const auto rectified = rectified_pairs(images);
 	std::cout << "Triangulating pointcoulds\n";
-	const auto pointclouds = rectified_to_pointclouds(rectified);
+	const auto result = rectified_integration(rectified);
+	const auto& pointclouds = result.first;
+	const auto& _sdf = result.second;
 	std::cout << "Merging pointclouds\n";
 	const auto merged = align(pointclouds);
 	std::fstream output_file("output.off", std::ios_base::out);
@@ -53,9 +55,16 @@ std::vector<Rectified> rectified_pairs(const std::vector<Image>& images) {
 	return output;
 }
 
-std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>& rectified_pairs) {
+std::pair<std::vector<Pointcloud>, SdfIntegrator> rectified_integration(
+	const std::vector<Rectified>& rectified_pairs) 
+{
+	SdfIntegrator integrator(
+		250, 250, 250,
+		{1.25, -4.0, 0},
+		{3.5, -1.75, 1.75});
 	std::vector<Pointcloud> output;
 	auto matcher = make_matcher();
+
 	int i = 0;
 	for(const auto& rectified_pair : rectified_pairs) {
 		std::cout << " Finding pixel matches (" << rectified_pair.pixel_left_gray.rows() << "x" << rectified_pair.pixel_left_gray.cols() << ")\n";
@@ -63,6 +72,8 @@ std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>& r
 		std::cout << " Triangulating coordinates\n";
 
 		auto triangulated = triangulate(rectified_pair, disparity);
+		std::cout << " Integrating into sdf\n";
+		integrate(integrator, triangulated);
 
 		std::cout << " Creating pointcloud\n";
 		auto pointcloud = globalize(triangulated);
@@ -75,6 +86,7 @@ std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>& r
 
 		output.push_back(std::move(pointcloud));
 	}
-	return output;
+
+	return { output, std::move(integrator) };
 }
 

@@ -134,6 +134,8 @@ Triangulated triangulate(const Rectified&, const Disparity&);
 
 Pointcloud globalize(const Triangulated&);
 
+void integrate(SdfIntegrator&, const Triangulated&);
+
 ///@ And, Yue
 auto align(std::vector<Pointcloud>) -> Pointcloud;
 
