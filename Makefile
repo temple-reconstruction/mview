@@ -5,8 +5,8 @@ LDFLAGS =
 
 BINARY = mview
 OBJ = main.o \
-	  matcher.o \
-	  patch_match.o \
+      matcher.o \
+      patch_match.o \
       match_cv.o \
       align.o \
       ssd.o \
@@ -17,12 +17,15 @@ OBJ = main.o \
       read_synthetic.o \
       # read_dataset.o read_image.o \
 
+
 LDLIBS = freeimage opencv_core opencv_calib3d opencv_imgproc opencv_highgui opencv_imgcodecs
 
 all: $(BINARY)
 
 $(BINARY): $(OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) $(addprefix -l,$(LDLIBS)) -o $(BINARY)
+
+patch_match.o: xoroshiro.h
 
 clean:
 	rm -f $(OBJ)

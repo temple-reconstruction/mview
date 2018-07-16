@@ -63,7 +63,7 @@ std::pair<std::vector<Pointcloud>, SdfIntegrator> rectified_integration(
 		{1.25, -4.0, 0},
 		{3.5, -1.75, 1.75});
 	std::vector<Pointcloud> output;
-	auto matcher = make_matcher();
+	auto matcher = make_patch_matcher();
 
 	int i = 0;
 	for(const auto& rectified_pair : rectified_pairs) {
