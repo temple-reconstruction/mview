@@ -35,7 +35,20 @@ methods (block matching,sift, etc..) and choose the one with the best effect
 
 6. Compare the rendered model against existing evaluation standard.
 
-## 4 References
+## 4 Building and Running
+
+Under Ubuntu or comparable Linux distributions, `make` should be enough.  You
+need the following libraries: `openexr`, `opencv2`, `Eigen`, `freeimage`. In
+some cases, some include paths need to be adjusted.  This happens for example if
+you want to use a custom installation of OpenCv or Eigen.  Just add the custom
+directories to the default include path already provided (following `-isystem`
+in the Makefile).
+
+There is one toggle in the build process:  In the `main.cpp` file you can
+choose the matching algorithm to be used for determining disparity maps. Use one
+of the values indicated and rebuild to see its results.
+
+## 5 References
 
 • Benchmarking/Evaluation standard: http://vision.middlebury.edu/mview/eval/
 

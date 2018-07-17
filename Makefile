@@ -8,6 +8,7 @@ OBJ = main.o \
 	  MarchingCubes.o \
       matcher.o \
 	  patch_match.o \
+	  match.o \
       match_cv.o \
       align.o \
       ssd.o \

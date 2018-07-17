@@ -7,7 +7,14 @@ static std::vector<Image> read_images(std::vector<CameraParameter> samples);
 static std::vector<Rectified> rectified_pairs(const std::vector<Image>& images);
 static std::pair<std::vector<Pointcloud>, SdfIntegrator> rectified_integration(const std::vector<Rectified>&);
 
+enum class MatchAlgorithm {
+	Ssd = 0,
+	StereoSgbm = 1,
+	PatchMatch = 2,
+};
+
 constexpr static int SPACING = 2;
+constexpr static MatchAlgorithm MATCH_ALGORITHM = MatchAlgorithm::StereoSgbm;
 
 template<typename T, typename F>
 static void for_each_pair(T begin, T end, F functor, int spacing=SPACING) {
@@ -71,7 +78,19 @@ std::pair<std::vector<Pointcloud>, SdfIntegrator> rectified_integration(
 		{1.25, -3.5, 0},
 		{3.5, -1.75, 1.75});
 	std::vector<Pointcloud> output;
-	auto matcher = make_matcher();
+
+	std::unique_ptr<Matcher> matcher;
+	switch(MATCH_ALGORITHM) {
+	case MatchAlgorithm::Ssd:
+		matcher = make_matcher_ssd();
+		break;
+	case MatchAlgorithm::StereoSgbm:
+		matcher = make_matcher();
+		break;
+	case MatchAlgorithm::PatchMatch:
+		matcher = make_patch_matcher();
+		break;
+	};
 
 	int i = 0;
 	for(const auto& rectified_pair : rectified_pairs) {

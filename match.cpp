@@ -1,5 +1,8 @@
 #include "mview.h"
 #include <opencv2/highgui.hpp>
+#include <memory>
+
+static Disparity match(const Rectified& rectified);
 
 namespace /* local types */ {
 
@@ -13,10 +16,25 @@ struct MinMatch {
 	float cost;
 };
 
+class SsdMatcher: public Matcher {
+public:
+	SsdMatcher() { }
+	Disparity match(const Rectified&) override final;
+private:
+};
+
+}
+
+std::unique_ptr<Matcher> make_matcher_ssd() {
+	return std::make_unique<SsdMatcher>();
+}
+
+Disparity SsdMatcher::match(const Rectified& rectified) {
+	return ::match(rectified);
 }
 
 static constexpr int BLOCK_SIZE = 3;
-static MinMatch find_min_gray(GrayImageView pattern, const GrayImage& rhs, int row);
+static MinMatch find_min_gray(GrayImageView pattern, const GrayImage& rhs, int row, int col);
 static Correspondence match_to_correspondence(int row, int col, MinMatch match);
 
 Disparity match(const Rectified& rectified) {
@@ -32,10 +50,10 @@ Disparity match(const Rectified& rectified) {
 	for(int i = BLOCK_SIZE; i < pixel_left.rows() - BLOCK_SIZE; i++) {
 		for(int j = BLOCK_SIZE; j < pixel_left.cols() - BLOCK_SIZE; j++) {
 			const GrayImageView pattern { pixel_left, i - BLOCK_SIZE, j - BLOCK_SIZE, 2*BLOCK_SIZE + 1, 2*BLOCK_SIZE + 1 };
-			const auto min = find_min_gray(pattern, pixel_right, i);
+			const auto min = find_min_gray(pattern, pixel_right, i, j);
 
 			matches.push_back(match_to_correspondence(i, j, min));
-			distances(i - BLOCK_SIZE, j - BLOCK_SIZE) = static_cast<float>(min.colIndex - j);
+			distances(i - BLOCK_SIZE, j - BLOCK_SIZE) = static_cast<float>(j - min.colIndex);
 			if(pixel_left(i, j) < 5./256.) {
 				distances(i - BLOCK_SIZE, j - BLOCK_SIZE) = 0;
 			}
@@ -51,10 +69,10 @@ Disparity match(const Rectified& rectified) {
 	return { matches, distances };
 }
 
-MinMatch find_min_gray(GrayImageView pattern, const GrayImage& rhs, int row) {
+MinMatch find_min_gray(GrayImageView pattern, const GrayImage& rhs, int row, int col) {
 	MinMatch best_match { 0, std::numeric_limits<float>::max() };
 
-	for(int j = BLOCK_SIZE; j < rhs.cols() - BLOCK_SIZE; j++) {
+	for(int j = col; j >= std::max(col - 64, BLOCK_SIZE); j--) {
 		const GrayImageView compare { rhs, row - BLOCK_SIZE, j - BLOCK_SIZE, 2*BLOCK_SIZE + 1, 2*BLOCK_SIZE + 1 };
 
 		const auto cost = ssd_cost_gray(pattern, compare);

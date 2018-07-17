@@ -131,6 +131,7 @@ namespace std {
 }
 
 ///@autor And
+std::unique_ptr<Matcher> make_matcher_ssd();
 std::unique_ptr<Matcher> make_matcher();
 std::unique_ptr<Matcher> make_patch_matcher();
 
