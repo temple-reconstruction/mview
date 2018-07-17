@@ -42,10 +42,7 @@ Disparity match(const Rectified& rectified) {
 	// If the images are vertically aligned, we transpose for matching
 	bool vertical = false; // rectified.P2.at<float>(1, 3) != 0;
 	std::stringstream debug_name;
-	std::string debug_left = ((debug_name << "debug.rectified" << debug_count << ".left.png"), debug_name.str()); debug_name.str("");
-	std::string debug_right = ((debug_name << "debug.rectified" << debug_count << ".right.png"), debug_name.str()); debug_name.str("");
 	std::string debug_disparity = ((debug_name << "debug.disparity" << debug_count << ".png"), debug_name.str()); debug_name.str("");
-	std::string debug_depth = ((debug_name << "debug.rectified" << debug_count << ".depth.png"), debug_name.str()); debug_name.str("");
 	debug_count++;
 
 	GrayImage pixel_left = rectified.pixel_left_gray;
@@ -77,10 +74,6 @@ Disparity match(const Rectified& rectified) {
 	stereo->compute(left_mat, right_mat, output.disparity);
 	if(vertical)
 		output.disparity = output.disparity.t();
-
-	cv::imwrite(debug_left, left_mat);
-	cv::imwrite(debug_right, right_mat);
-	cv::imwrite(debug_depth, depth_mat*25.);
 
 	for(int i = 0; i < output.disparity.rows; i++)
 		for(int j = 0; j < output.disparity.cols; j++)
