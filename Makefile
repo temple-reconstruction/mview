@@ -36,3 +36,6 @@ clean:
 %.o: %.cpp mview.h
 	$(CC) -c $(CFLAGS) $(CXXFLAGS) $< -o $@
 
+distclean:
+	rm -f ./*.off
+	rm -f ./*.png
