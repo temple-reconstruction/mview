@@ -39,6 +39,9 @@ bool write_mesh(std::ostream& outFile, const Pointcloud& pointcloud, bool use_fa
 	outFile << "COFF" << std::endl;
 	outFile << nVertices << " " << nFaces << " 0" << std::endl;
 
+	assert(nVertices <= pointcloud.points.size());
+	assert(nVertices <= pointcloud.colours.size());
+
 	//save vertices
     for (int i=0;i<nVertices;i++){
 		if (!std::isfinite(pointcloud.points[i](0)) || pointcloud.points[i][2] > 100){

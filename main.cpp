@@ -33,10 +33,10 @@ int main() {
 	const auto& pointclouds = result.first;
 	const auto& sdf = result.second;
 	std::cout << "Merging pointclouds\n";
-	const auto merged = align(pointclouds);
-	std::fstream output_file("output.off", std::ios_base::out);
-	std::cout << "Writing output file\n";
-	write_mesh(output_file, merged);
+//	const auto merged = align(pointclouds);
+//	std::fstream output_file("output.off", std::ios_base::out);
+//	std::cout << "Writing output file\n";
+//	write_mesh(output_file, merged);
 
 	std::cout << "Marching cubes to build mesh\n";
 	const auto mesh = sdf.mesh();

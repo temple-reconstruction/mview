@@ -36,6 +36,7 @@ Pointcloud align_to_existing(const Pointcloud& reference, const Pointcloud& to_a
 
 void merge_pointcloud_into(Pointcloud& target, Pointcloud input) {
 	target.points.insert(target.points.end(), input.points.begin(), input.points.end());
+	target.colours.insert(target.colours.end(), input.colours.begin(), input.colours.end());
 }
 
 constexpr static const float OUTER_CUTOFF = 0.4f;
