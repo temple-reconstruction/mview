@@ -5,10 +5,7 @@ SdfIntegrator::SdfIntegrator(int x, int y, int z, coordinate min, coordinate max
 	min(min), size(max - min),
 	count_x(x), count_y(y), count_z(z),
 	cubes(new Cube[x*y*z])
-{
-	for(int idx = 0; idx < x*y*z; idx++)
-		cubes[idx].distance = 1000.;
-}
+{ }
 
 auto SdfIntegrator::coordinate_of(int x, int y, int z) const -> coordinate {
 	coordinate dist {
@@ -24,12 +21,7 @@ static float weight_of(float estimated) {
 	return 1.;
 }
 
-void Cube::integrate(float estimated_distance, float truncation) {
-	if(estimated_distance < -truncation)  // Voxel in front of observation
-		return;
-	if(estimated_distance > truncation)  // Voxel too far
-		return;
-
+void Cube::integrate(float estimated_distance) {
 	const float previous_sum = distance*weights;
 	const float previous_weight = weights;
 
@@ -56,13 +48,10 @@ const Cube& SdfIntegrator::get(int x, int y, int z) const {
 SimpleMesh SdfIntegrator::mesh() const {
 	SimpleMesh mesh;
 
-	for (unsigned int x = 1; x < count_x - 1; x++)
-	{
+	for (int x = 1; x < count_x - 1; x++) {
 		std::cerr << "Marching Cubes on slice " << x << " of " << count_x << std::endl;
-		for (unsigned int y = 1; y < count_y - 1; y++)
-		{
-			for (unsigned int z = 1; z < count_z - 1; z++)
-			{
+		for (int y = 1; y < count_y - 1; y++) {
+			for (int z = 1; z < count_z - 1; z++) {
 				ProcessVolumeCell(*this, x, y, z, 0.00f, mesh);
 			}
 		}

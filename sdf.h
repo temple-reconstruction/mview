@@ -6,12 +6,12 @@
 
 struct Cube {
 	/// The computed distance to the nearest surface.
-	float distance;
+	float distance = 1000.f;
 
 	/// The total weight of measurements that went into this metric.
-	float weights;
+	float weights = 0.f;
 
-	void integrate(float estimated, float truncation);
+	void integrate(float estimated);
 };
 
 class SdfIntegrator {

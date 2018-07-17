@@ -7,8 +7,10 @@ static std::vector<Image> read_images(std::vector<CameraParameter> samples);
 static std::vector<Rectified> rectified_pairs(const std::vector<Image>& images);
 static std::pair<std::vector<Pointcloud>, SdfIntegrator> rectified_integration(const std::vector<Rectified>&);
 
+constexpr static int SPACING = 2;
+
 template<typename T, typename F>
-static void for_each_pair(T begin, T end, F functor, int spacing=0) {
+static void for_each_pair(T begin, T end, F functor, int spacing=SPACING) {
 	if(begin == end)
 		return;
 	T first = begin;
@@ -57,7 +59,7 @@ std::vector<Rectified> rectified_pairs(const std::vector<Image>& images) {
  	output.reserve(images.size());
 	for_each_pair(images.begin(), images.end(), [&](const Image& left, const Image& right) {
 		output.push_back(rectify(left, right));
-	}, 2);
+	});
 	return output;
 }
 
@@ -73,6 +75,7 @@ std::pair<std::vector<Pointcloud>, SdfIntegrator> rectified_integration(
 
 	int i = 0;
 	for(const auto& rectified_pair : rectified_pairs) {
+		std::cout << "Processing rectified pair " << i << " of " << rectified_pairs.size() << "\n";
 		std::cout << " Finding pixel matches (" << rectified_pair.pixel_left_gray.rows() << "x" << rectified_pair.pixel_left_gray.cols() << ")\n";
 		auto disparity = matcher->match(rectified_pair);
 		std::cout << " Triangulating coordinates\n";

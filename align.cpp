@@ -38,7 +38,8 @@ void merge_pointcloud_into(Pointcloud& target, Pointcloud input) {
 	target.points.insert(target.points.end(), input.points.begin(), input.points.end());
 }
 
-constexpr static const float CUTOFF = 0.1f;
+constexpr static const float OUTER_CUTOFF = 0.15f;
+constexpr static const float INNER_CUTOFF = -0.03f;
 
 void integrate(SdfIntegrator& integrator, const Triangulated& triangulated) {
 	const auto visitor = [&](Eigen::Vector3f coords, auto& cube) { 
@@ -60,8 +61,14 @@ void integrate(SdfIntegrator& integrator, const Triangulated& triangulated) {
 
 		float cube_distance = local_coords.norm();
 		float measured = triangulated.points(i, j).norm();
+		float signed_distance = cube_distance - measured;
 
-		cube.integrate(cube_distance - measured, CUTOFF);
+		if(signed_distance < INNER_CUTOFF)
+			return;
+		if(signed_distance > OUTER_CUTOFF)
+			return;
+
+		cube.integrate(signed_distance);
 	};
 
 	integrator.visit(visitor);
