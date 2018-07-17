@@ -28,6 +28,7 @@ $(BINARY): $(OBJ)
 
 patch_match.o: xoroshiro.h
 mview.h: sdf.h SimpleMesh.h MarchingCubes.h
+sdf.o: sdf.h
 
 clean:
 	rm -f $(OBJ)

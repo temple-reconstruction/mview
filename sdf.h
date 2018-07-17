@@ -11,7 +11,14 @@ struct Cube {
 	/// The total weight of measurements that went into this metric.
 	float weights = 0.f;
 
+	/// The colour of this voxel.
+	// Eigen::Vector3f colour;
+
+	/// Flag to remove noise.
+	int freeCtr = 0;
+
 	void integrate(float estimated);
+	void markFree();
 };
 
 class SdfIntegrator {
@@ -25,7 +32,10 @@ public:
 	void set_z_bounds(float amin, float amax) { min[2] = amin; size[2] = amax - amin; };
 
 	coordinate coordinate_of(int x, int y, int z) const;
-	Eigen::Vector3d pos(int x, int y, int z) const { return coordinate_of(x, y, z).unaryExpr([](float x) { return (double) x; }); }
+
+	Eigen::Vector3d pos(int x, int y, int z) const {
+	   return coordinate_of(x, y, z).unaryExpr([](float x) { return (double) x; }); 
+	}
 
 	int index_of(int x, int y, int z) const;
 	Cube& get(int x, int y, int z);
@@ -39,6 +49,7 @@ public:
 					f(coordinate_of(x, y, z), get(x, y, z));
 	}
 
+	void remove_free();
 	SimpleMesh mesh() const;
 
 private:

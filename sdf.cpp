@@ -1,5 +1,6 @@
 #include "sdf.h"
 #include "MarchingCubes.h"
+#include <iostream>
 
 SdfIntegrator::SdfIntegrator(int x, int y, int z, coordinate min, coordinate max) :
 	min(min), size(max - min),
@@ -18,18 +19,23 @@ auto SdfIntegrator::coordinate_of(int x, int y, int z) const -> coordinate {
 }
 
 static float weight_of(float estimated) {
-	return 1.;
+	return 1./(1 + 10.*estimated*estimated);
 }
 
 void Cube::integrate(float estimated_distance) {
 	const float previous_sum = distance*weights;
 	const float previous_weight = weights;
 
-	const float new_sum = previous_sum + estimated_distance;
-	const float new_weights = previous_weight + weight_of(estimated_distance);
+	const float weight = weight_of(estimated_distance);
+	const float new_sum = previous_sum + weight*estimated_distance;
+	const float new_weights = previous_weight + weight;
 
 	distance = new_sum/new_weights;
 	weights = new_weights;
+}
+
+void Cube::markFree() {
+	freeCtr++;
 }
 
 int SdfIntegrator::index_of(int x, int y, int z) const {
@@ -45,14 +51,21 @@ const Cube& SdfIntegrator::get(int x, int y, int z) const {
 	return cubes[index_of(x, y, z)];
 }
 
+void SdfIntegrator::remove_free() {
+	visit([](auto _coord, auto& cube) {
+			if(cube.freeCtr > 3*cube.weights)
+				cube.distance = 1000.f;
+		});
+}
+
 SimpleMesh SdfIntegrator::mesh() const {
 	SimpleMesh mesh;
 
-	for (int x = 1; x < count_x - 1; x++) {
+	for (int x = 0; x < count_x - 1; x++) {
 		std::cerr << "Marching Cubes on slice " << x << " of " << count_x << std::endl;
-		for (int y = 1; y < count_y - 1; y++) {
-			for (int z = 1; z < count_z - 1; z++) {
-				ProcessVolumeCell(*this, x, y, z, 0.00f, mesh);
+		for (int y = 0; y < count_y - 1; y++) {
+			for (int z = 0; z < count_z - 1; z++) {
+				ProcessVolumeCell(*this, x, y, z, 0.f, mesh);
 			}
 		}
 	}
