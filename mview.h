@@ -17,6 +17,7 @@ using ColourImage = Eigen::Matrix<Eigen::Vector4f, Eigen::Dynamic, Eigen::Dynami
 /// Read from the parameter file `<name>_par.txt`
 struct CameraParameter {
 	std::string filename;
+	std::string ground_truth;
 	Eigen::Matrix3f intrinsics;
 	Eigen::Matrix4f extrinsics;
 };
@@ -25,6 +26,7 @@ struct CameraParameter {
 struct Image {
 	GrayImage gray_pixels;
 	RgbImage rgb_pixels;
+	GrayImage ground_truth;
 	Eigen::Matrix3f intrinsics;
 	Eigen::Matrix4f extrinsics;
 };
@@ -33,9 +35,11 @@ struct Image {
 struct Rectified {
     GrayImage pixel_left_gray;
     GrayImage pixel_right_gray;
+	GrayImage left_ground_truth;
     
     RgbImage pixel_left_rgb;
     RgbImage pixel_right_rgb;
+	GrayImage right_ground_truth;
     
     //    float baseline_distance;
     Eigen::Matrix4f extrinsics_left;

@@ -8,6 +8,8 @@
 #include <opencv/cv.hpp>
 #include <opencv2/core/eigen.hpp>
 
+static int debug_cnt = 0;
+
 Triangulated triangulate(const Rectified &rectified, const Disparity& disparity)
 {
   cv::Mat reconstructed_points;
@@ -18,6 +20,13 @@ Triangulated triangulate(const Rectified &rectified, const Disparity& disparity)
 
   cv::Mat point_parts[3];
   cv::split(reconstructed_points, point_parts);
+
+  std::stringstream depth_output_str;
+  depth_output_str << "debug.depth" << debug_cnt++ << ".png";
+  std::string depth_output = depth_output_str.str();
+
+  cv::imwrite(depth_output, point_parts[2]*25.);
+
   for(int i = 0; i < 3; i++)
     point_parts[i] = point_parts[i].reshape(1, 1);
 

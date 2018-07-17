@@ -19,7 +19,7 @@ OBJ = main.o \
       # read_dataset.o read_image.o \
 
 
-LDLIBS = freeimage opencv_core opencv_calib3d opencv_imgproc opencv_highgui opencv_imgcodecs
+LDLIBS = freeimage opencv_core opencv_calib3d opencv_imgproc opencv_highgui opencv_imgcodecs IlmImf
 
 all: $(BINARY)
 

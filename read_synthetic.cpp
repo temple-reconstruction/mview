@@ -1,4 +1,5 @@
 #include "mview.h"
+#include "LoaderEXR.h"
 #include <iostream>
 #include <fstream>
 #include <Eigen/Dense>
@@ -32,6 +33,7 @@ std::vector<CameraParameter> read_dataset(std::istream& parameter) {
 			camera.extrinsics.col(j).normalize();
 		// camera.extrinsics = camera.extrinsics.inverse().eval();
 		camera.filename = line + ".jpg";
+		camera.ground_truth = line + ".exr";
 		output.push_back(camera);
 	}
 
@@ -43,6 +45,10 @@ Image read_image(CameraParameter cameraParameter) {
 	std::tie(image.gray_pixels, image.rgb_pixels) = ReadImageFromFile(cameraParameter.filename);
 	image.extrinsics = cameraParameter.extrinsics;
 
+	image.ground_truth = GrayImage(image.gray_pixels.rows(), image.gray_pixels.cols());
+	read_openexr(cameraParameter.ground_truth, image.ground_truth.data(), 
+		image.gray_pixels.cols(), image.gray_pixels.rows(), 1);
+
 	/*
 	INTRINSIC:
 
@@ -51,6 +57,7 @@ Image read_image(CameraParameter cameraParameter) {
 	*/
 	const float image_width = image.gray_pixels.cols();
 	const float image_height = image.gray_pixels.rows();
+
 	std::cout << image_width << "x" << image_height << "\n";
 	image.intrinsics.setIdentity();
 	image.intrinsics(0, 0) = image_width*4.1/4.54;

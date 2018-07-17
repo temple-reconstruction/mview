@@ -81,11 +81,14 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
     Eigen::Vector3f T = R.transpose() * left_to_right.block<3, 1>(0, 3);
 
     //convert eigen matrix to mat
-    cv::Mat left_gray_mat;
-    cv::eigen2cv(left_gray_pixels,left_gray_mat);
+    cv::Mat left_gray_mat, left_ground_mat;
+    cv::eigen2cv(left_gray_pixels, left_gray_mat);
+    cv::eigen2cv(left.ground_truth, left_ground_mat);
     cv::Mat left_rgb_mat = convertRgbToOpenCV(left_rgb_pixels);
-    cv::Mat right_gray_mat;
-    cv::eigen2cv(right_gray_pixels,right_gray_mat);
+
+    cv::Mat right_gray_mat, right_ground_mat;
+    cv::eigen2cv(right_gray_pixels, right_gray_mat);
+    cv::eigen2cv(right.ground_truth, right_ground_mat);
     cv::Mat right_rgb_mat = convertRgbToOpenCV(right_rgb_pixels);
     cv::Mat left_intrinsics_mat, right_intrinsics_mat, R_mat, T_mat;
 
@@ -105,17 +108,21 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
 			cv::CALIB_ZERO_DISPARITY,
 		   	1,targetSize,0,0);
 
-    cv::Mat map1,map2, left_gray_out;
+    cv::Mat map1,map2, left_gray_out, left_ground_out;
     cv::initUndistortRectifyMap(left_intrinsics_mat,{},R1,P1,targetSize,CV_32FC1,map1,map2);
     cv::remap(left_gray_mat,left_gray_out,map1,map2,cv::INTER_NEAREST,cv::BORDER_CONSTANT);
+    cv::remap(left_ground_mat, left_ground_out, map1, map2, cv::INTER_NEAREST, cv::BORDER_CONSTANT);
 	left_gray_mat = left_gray_out;
 	remap_rgb(left_rgb_mat, map1, map2);
 
-    cv::Mat map3,map4, right_gray_out;
+    cv::Mat map3,map4, right_gray_out, right_ground_out;
     cv::initUndistortRectifyMap(right_intrinsics_mat,{},R2,P2,targetSize,CV_32FC1,map3,map4);
     cv::remap(right_gray_mat,right_gray_out,map3,map4,cv::INTER_NEAREST,cv::BORDER_CONSTANT);
+    cv::remap(right_ground_mat, right_ground_out, map1, map2, cv::INTER_NEAREST, cv::BORDER_CONSTANT);
 	right_gray_mat = right_gray_out;
 	remap_rgb(right_rgb_mat, map3, map4);
+
+    cv::remap(right_gray_mat,right_gray_out,map3,map4,cv::INTER_NEAREST,cv::BORDER_CONSTANT);
 
 	std::cout << "Debugging rectification results\n";
 	std::cout << "R1 " << R1 << "\nR2 " << R2 << "\nP1 " << P1 << "\nP2" << P2 << "\nQ " << Q << std::endl;
@@ -124,11 +131,15 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
 
     //convert mat to eigen matrix
 	rectified.pixel_left_gray = GrayImage(left_gray_mat.rows, left_gray_mat.cols);
+	rectified.left_ground_truth = GrayImage(left_gray_mat.rows, left_gray_mat.cols);
     cv::cv2eigen(left_gray_mat, rectified.pixel_left_gray);
+    cv::cv2eigen(left_ground_out, rectified.left_ground_truth);
 	rectified.pixel_left_rgb = convertOpenCVToRgb(left_rgb_mat);
 
 	rectified.pixel_right_gray = GrayImage (right_gray_mat.rows, right_gray_mat.cols);
+	rectified.right_ground_truth = GrayImage(right_gray_mat.rows, right_gray_mat.cols);
     cv::cv2eigen(right_gray_mat, rectified.pixel_right_gray);
+    cv::cv2eigen(right_ground_out, rectified.right_ground_truth);
 	rectified.pixel_right_rgb = convertOpenCVToRgb(right_rgb_mat);
 
 	rectified.extrinsics_left = left.extrinsics;

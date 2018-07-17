@@ -45,6 +45,7 @@ Disparity match(const Rectified& rectified) {
 	std::string debug_left = ((debug_name << "debug.rectified" << debug_count << ".left.png"), debug_name.str()); debug_name.str("");
 	std::string debug_right = ((debug_name << "debug.rectified" << debug_count << ".right.png"), debug_name.str()); debug_name.str("");
 	std::string debug_disparity = ((debug_name << "debug.disparity" << debug_count << ".png"), debug_name.str()); debug_name.str("");
+	std::string debug_depth = ((debug_name << "debug.rectified" << debug_count << ".depth.png"), debug_name.str()); debug_name.str("");
 	debug_count++;
 
 	GrayImage pixel_left = rectified.pixel_left_gray;
@@ -55,9 +56,10 @@ Disparity match(const Rectified& rectified) {
 		pixel_right = pixel_right.transpose().eval();
 	}
 
-	cv::Mat left_mat, right_mat;
+	cv::Mat left_mat, right_mat, depth_mat;
 	cv::eigen2cv(pixel_left, left_mat);
 	cv::eigen2cv(pixel_right, right_mat);
+	cv::eigen2cv(rectified.left_ground_truth, depth_mat);
 
 	left_mat = left_mat*255.;
 	right_mat = right_mat*255.;
@@ -78,6 +80,7 @@ Disparity match(const Rectified& rectified) {
 
 	cv::imwrite(debug_left, left_mat);
 	cv::imwrite(debug_right, right_mat);
+	cv::imwrite(debug_depth, depth_mat*25.);
 
 	for(int i = 0; i < output.disparity.rows; i++)
 		for(int j = 0; j < output.disparity.cols; j++)
