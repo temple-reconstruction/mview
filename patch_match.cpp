@@ -35,18 +35,18 @@ private:
 
 PatchMatch::PatchMatch(int max_disp) 
 	: max_disp(max_disp),
-	  iterations(40),
+	  iterations(10),
 	  random_iterations(2),
 	  min_delta(0.001),
 	  block_size(3),
 	  gamma(1.),
 	  beta(0.),
-	  tau_col(.4),
+	  tau_col(1.),
 	  tau_grad(1.)
 { }
 
 std::unique_ptr<Matcher> make_patch_matcher() {
-	return std::make_unique<PatchMatch>(32);
+	return std::make_unique<PatchMatch>(64);
 }
 
 Disparity PatchMatch::match(const Rectified& rectified) {
@@ -65,12 +65,12 @@ Disparity PatchMatch::match(const Rectified& rectified) {
 	initialize(rectified, disparity, costs);
 	for(int m = 0; m < iterations; m++) {
 		std::cout << "  Patch match iteration\n";
-		distribute(rectified, disparity, costs, m%2);
+		for(int l=0; l<6; l++) distribute(rectified, disparity, costs, (l + m)%2);
 		random_search(rectified, disparity, costs);
 	}
 
 	cv::imwrite(debug_disparity, (disparity/max_disp*255.));
-	cv::imwrite(debug_cost, costs*255./block_size*block_size);
+	cv::imwrite(debug_cost, costs*255./(2*block_size + 1)*(2*block_size + 1));
 
 	std::vector<Correspondence> corrs;
 	for(int i = 0; i < disparity.rows; i++)
@@ -138,7 +138,7 @@ void PatchMatch::random_search(const Rectified& rectified, cv::Mat& disparity, c
 
 	for(int i = 0; i < disparity.rows; i++) {
 		for(int j = 0; j < disparity.cols; j++) {
-			float alpha_k = alpha;
+			float alpha_k = 1.;
 			const float base = disparity.at<float>(i, j);
 			for(int k = 0; k < random_iterations; k++, alpha_k*=alpha) {
 				const float R = distribution(engine); 
@@ -147,14 +147,14 @@ void PatchMatch::random_search(const Rectified& rectified, cv::Mat& disparity, c
 					break;
 
 				const float step = base + delta;
-				const float old_score = costs.at<float>(i, j);
+				const float old_cost = costs.at<float>(i, j);
 				const float new_disp = std::min(std::max(step, 0.f), (float)max_disp);
 
-				const float new_score = scoring(rectified, i, j, new_disp);
-				if(new_score >= old_score)
+				const float new_cost = scoring(rectified, i, j, new_disp);
+				if(new_cost >= old_cost)
 					continue;
 				disparity.at<float>(i, j) = new_disp;
-				costs.at<float>(i, j) = new_score;
+				costs.at<float>(i, j) = new_cost;
 			}
 		}
 	}
@@ -168,24 +168,24 @@ float PatchMatch::scoring(const Rectified& rectified, int x, int y, float disp) 
 		y = std::max(std::min(y, (int) mat.cols() - 1), 0);
 		return mat(x, y);
 	};
-	const auto get_interpolated = [&get_in_bounds](const GrayImage& mat, float x, int y) {
-		int x_index = static_cast<int>(std::floor(x));
-		float x_fract = x - x_index;
+	const auto get_interpolated = [&get_in_bounds](const GrayImage& mat, int x, float y) {
+		int y_index = static_cast<int>(std::floor(y));
+		float y_fract = y - y_index;
 
-		float left_val = get_in_bounds(mat, x_index + 0, y);
-		float right_val = get_in_bounds(mat, x_index + 1, y);
+		auto left_val = get_in_bounds(mat, x, y_index + 0);
+		auto right_val = get_in_bounds(mat, x, y_index + 1);
 
-		return (1 - x_fract)*left_val + x_fract*right_val;
+		return (1 - y_fract)*left_val + y_fract*right_val;
 	};
 	const auto& left = rectified.pixel_left_gray;
 	const auto& right = rectified.pixel_right_gray;
 
-	float reference_val = get_in_bounds(left, x, y);
+	auto reference_val = get_in_bounds(left, x, y);
 	for(int i = x - block_size; i < x + block_size; i++) {
 		for(int j = y - block_size; j < y + block_size; j++) {
-			float f_val = get_in_bounds(left, i, j);
-			float weight = std::exp(-std::abs(f_val - reference_val)/gamma);
-			float g_val = get_interpolated(right, i, j - disp);
+			auto f_val = get_in_bounds(left, i, j);
+			float weight = 1.; //  std::exp(-std::abs(f_val - reference_val)/gamma);
+			auto g_val = get_interpolated(right, i, j - disp);
 
 			float cost = (1 - beta)*std::min(std::abs(f_val - g_val), tau_col)
 				+ /*TODO: derivative term*/ 0;

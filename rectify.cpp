@@ -110,21 +110,19 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
 			cv::CALIB_ZERO_DISPARITY,
 		   	1,targetSize,0,0);
 
-    cv::Mat map1,map2, left_gray_out, left_ground_out;
+    cv::Mat map1, map2, left_gray_out, left_ground_out;
     cv::initUndistortRectifyMap(left_intrinsics_mat,{},R1,P1,targetSize,CV_32FC1,map1,map2);
-    cv::remap(left_gray_mat,left_gray_out,map1,map2,cv::INTER_NEAREST,cv::BORDER_CONSTANT);
+    cv::remap(left_gray_mat, left_gray_out, map1, map2, cv::INTER_NEAREST, cv::BORDER_CONSTANT);
     cv::remap(left_ground_mat, left_ground_out, map1, map2, cv::INTER_NEAREST, cv::BORDER_CONSTANT);
 	left_gray_mat = left_gray_out;
 	remap_rgb(left_rgb_mat, map1, map2);
 
     cv::Mat map3,map4, right_gray_out, right_ground_out;
     cv::initUndistortRectifyMap(right_intrinsics_mat,{},R2,P2,targetSize,CV_32FC1,map3,map4);
-    cv::remap(right_gray_mat,right_gray_out,map3,map4,cv::INTER_NEAREST,cv::BORDER_CONSTANT);
-    cv::remap(right_ground_mat, right_ground_out, map1, map2, cv::INTER_NEAREST, cv::BORDER_CONSTANT);
+    cv::remap(right_gray_mat, right_gray_out, map3, map4, cv::INTER_NEAREST, cv::BORDER_CONSTANT);
+    cv::remap(right_ground_mat, right_ground_out, map3, map3, cv::INTER_NEAREST, cv::BORDER_CONSTANT);
 	right_gray_mat = right_gray_out;
 	remap_rgb(right_rgb_mat, map3, map4);
-
-    cv::remap(right_gray_mat,right_gray_out,map3,map4,cv::INTER_NEAREST,cv::BORDER_CONSTANT);
 
 	std::cout << "Debugging rectification results\n";
 	std::cout << "R1 " << R1 << "\nR2 " << R2 << "\nP1 " << P1 << "\nP2" << P2 << "\nQ " << Q << std::endl;

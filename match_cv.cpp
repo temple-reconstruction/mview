@@ -22,7 +22,7 @@ private:
 }
 
 CvMatcher::CvMatcher() {
-	inner = cv::StereoSGBM::create(0, 32, 7,
+	inner = cv::StereoSGBM::create(0, 64, 7,
 			8, 32,
 			0, 0,
 			15,

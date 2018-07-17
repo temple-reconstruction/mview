@@ -89,11 +89,10 @@ std::pair<std::vector<Pointcloud>, SdfIntegrator> rectified_integration(
 
 		std::stringstream debug_name;
 		debug_name << "output_debug" << i++ << ".off";
-		/*
+
 		std::fstream debug_out(debug_name.str(), std::ios_base::out);
 		std::cout << " Writing debug output\n";
 		write_mesh(debug_out, pointcloud);
-		*/
 
 		output.push_back(std::move(pointcloud));
 	}
