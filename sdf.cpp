@@ -25,7 +25,7 @@ static float weight_of(float estimated) {
 }
 
 void Cube::integrate(float estimated_distance, float truncation) {
-	if(estimated_distance < 0)  // Voxel in front of observation
+	if(estimated_distance < -truncation)  // Voxel in front of observation
 		return;
 	if(estimated_distance > truncation)  // Voxel too far
 		return;
@@ -56,12 +56,12 @@ const Cube& SdfIntegrator::get(int x, int y, int z) const {
 SimpleMesh SdfIntegrator::mesh() const {
 	SimpleMesh mesh;
 
-	for (unsigned int x = 0; x < count_x; x++)
+	for (unsigned int x = 1; x < count_x - 1; x++)
 	{
 		std::cerr << "Marching Cubes on slice " << x << " of " << count_x << std::endl;
-		for (unsigned int y = 0; y < count_y; y++)
+		for (unsigned int y = 1; y < count_y - 1; y++)
 		{
-			for (unsigned int z = 0; z < count_z; z++)
+			for (unsigned int z = 1; z < count_z - 1; z++)
 			{
 				ProcessVolumeCell(*this, x, y, z, 0.00f, mesh);
 			}

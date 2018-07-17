@@ -30,7 +30,7 @@ auto align(std::vector<Pointcloud> pointclouds) -> Pointcloud {
 }
 
 Pointcloud align_to_existing(const Pointcloud& reference, const Pointcloud& to_align) {
-	// FIXME: ICP or another alignment optimization
+	// FIXME: do we need ICP or another alignment optimization
 	return to_align;
 }
 

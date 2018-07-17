@@ -34,10 +34,12 @@ int main() {
 	const auto merged = align(pointclouds);
 	std::fstream output_file("output.off", std::ios_base::out);
 	std::cout << "Writing output file\n";
-	write_mesh(output_file, merged);
+	// write_mesh(output_file, merged);
 
-	std::fstream output_sdf("sdf_mesh.off", std::ios_base::out);
+	std::cout << "Marching cubes to build mesh\n";
 	const auto mesh = sdf.mesh();
+	std::cout << "Writing integrated sdf mesh\n";
+	std::fstream output_sdf("sdf_mesh.off", std::ios_base::out);
 	mesh.WriteMesh(output_sdf);
 }
 
@@ -67,7 +69,7 @@ std::pair<std::vector<Pointcloud>, SdfIntegrator> rectified_integration(
 		{1.25, -4.0, 0},
 		{3.5, -1.75, 1.75});
 	std::vector<Pointcloud> output;
-	auto matcher = make_patch_matcher();
+	auto matcher = make_matcher();
 
 	int i = 0;
 	for(const auto& rectified_pair : rectified_pairs) {
