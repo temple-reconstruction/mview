@@ -38,7 +38,7 @@ PatchMatch::PatchMatch(int max_disp)
 	  iterations(10),
 	  random_iterations(2),
 	  min_delta(0.001),
-	  block_size(3),
+	  block_size(4),
 	  gamma(1.),
 	  beta(0.),
 	  tau_col(1.),
@@ -56,8 +56,6 @@ Disparity PatchMatch::match(const Rectified& rectified) {
 	std::cout << disparity.rows << " " << disparity.cols << "\n";
 
 	std::stringstream debug_name;
-	std::string debug_left = ((debug_name << "debug.rectified" << debug_count << ".left.png"), debug_name.str()); debug_name.str("");
-	std::string debug_right = ((debug_name << "debug.rectified" << debug_count << ".right.png"), debug_name.str()); debug_name.str("");
 	std::string debug_disparity = ((debug_name << "debug.disparity" << debug_count << ".png"), debug_name.str()); debug_name.str("");
 	std::string debug_cost = ((debug_name << "debug.cost" << debug_count << ".png"), debug_name.str()); debug_name.str("");
 	debug_count++;
@@ -184,7 +182,7 @@ float PatchMatch::scoring(const Rectified& rectified, int x, int y, float disp) 
 	for(int i = x - block_size; i < x + block_size; i++) {
 		for(int j = y - block_size; j < y + block_size; j++) {
 			auto f_val = get_in_bounds(left, i, j);
-			float weight = 1.; //  std::exp(-std::abs(f_val - reference_val)/gamma);
+			float weight = std::exp(-std::abs(f_val - reference_val)/gamma);
 			auto g_val = get_interpolated(right, i, j - disp);
 
 			float cost = (1 - beta)*std::min(std::abs(f_val - g_val), tau_col)
