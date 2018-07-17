@@ -27,6 +27,7 @@ public:
 	void set_z_bounds(float amin, float amax) { min[2] = amin; size[2] = amax - amin; };
 
 	coordinate coordinate_of(int x, int y, int z) const;
+	Eigen::Vector3d pos(int x, int y, int z) const { return coordinate_of(x, y, z).unaryExpr([](float x) { return (double) x; }); }
 
 	int index_of(int x, int y, int z) const;
 	Cube& get(int x, int y, int z);

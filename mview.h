@@ -7,6 +7,7 @@
 #include <opencv2/core.hpp>
 
 #include "sdf.h"
+#include "MarchingCubes.h"
 
 using GrayImage = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 using RgbImage = Eigen::Matrix<Eigen::Vector3f, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;

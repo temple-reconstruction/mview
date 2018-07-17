@@ -5,6 +5,7 @@ LDFLAGS =
 
 BINARY = mview
 OBJ = main.o \
+	  MarchingCubes.o \
       matcher.o \
       patch_match.o \
       match_cv.o \
@@ -26,6 +27,7 @@ $(BINARY): $(OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) $(addprefix -l,$(LDLIBS)) -o $(BINARY)
 
 patch_match.o: xoroshiro.h
+mview.h: sdf.h SimpleMesh.h MarchingCubes.h
 
 clean:
 	rm -f $(OBJ)
