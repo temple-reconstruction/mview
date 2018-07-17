@@ -10,6 +10,8 @@
 #include <opencv/cv.hpp>
 #include <opencv2/core/eigen.hpp>
 
+static int debug_count = 0;
+
 cv::Mat convertRgbToOpenCV(const RgbImage& rgb) {
 	GrayImage r = rgb.unaryExpr([](Eigen::Vector3f rgb) { return rgb[0]; });
 	GrayImage g = rgb.unaryExpr([](Eigen::Vector3f rgb) { return rgb[1]; });
@@ -28,141 +30,137 @@ cv::Mat convertRgbToOpenCV(const RgbImage& rgb) {
 	return rgb_mat;
 }
 
-RgbImage convertOpenCVToRgb(const cv::Mat rgbMat){
-    std::vector<cv::Mat> rgb;
-    cv::split(rgbMat,rgb);
-    GrayImage r,g,b;
-    cv::cv2eigen(rgb[0],r);
-    cv::cv2eigen(rgb[1],g);
-    cv::cv2eigen(rgb[2],b);
+RgbImage convertOpenCVToRgb(const cv::Mat imageMat){
+    cv::Mat rgb[3];
+    cv::split(imageMat, rgb);
+
+	int width = imageMat.cols;
+	int height = imageMat.rows;
+    GrayImage r(height, width), g(height, width), b(height, width);
+
+    cv::cv2eigen(rgb[0], r);
+    cv::cv2eigen(rgb[1], g);
+    cv::cv2eigen(rgb[2], b);
 
     RgbImage rgbImage (g.rows(), g.cols());
-// Eigen::Matrix<Eigen::Vector3f,480,640> rgbImage;
-//    rgbImage.setZero();
-    for(int row=0;row<480;row++){
-        for(int col=0;col<640;col++){
+
+    for(int row=0;row<g.rows();row++){
+        for(int col=0;col<g.cols();col++){
             rgbImage(row,col)<<r(row,col),g(row,col),b(row,col);
         }
     }
-//    std::cout<<rgbImage.rows()<<std::endl;
+
     return rgbImage;
 }
 
 
-void remap_rgb(cv::Mat rgb_image, cv::Mat map1, cv::Mat map2) {
-//	std::cout << rgb_image.channels() << " " << rgb_image.type() << " " << rgb_image.size() << "\n";
-
+void remap_rgb(cv::Mat& rgb_image, cv::Mat map1, cv::Mat map2) {
 	cv::Mat rgbs[3];
 	cv::split(rgb_image, rgbs);
   
+	cv::Mat rgbs_out[3];
 	for(int i = 0; i < 3; i++)
-		cv::remap(rgbs[i], rgbs[i], map1, map2, cv::INTER_NEAREST, cv::BORDER_CONSTANT);
+		cv::remap(rgbs[i], rgbs_out[i], map1, map2, cv::INTER_NEAREST, cv::BORDER_CONSTANT);
 
-	cv::merge(rgbs, 3, rgb_image);
+	cv::merge(rgbs_out, 3, rgb_image);
 }
 
 auto rectify(const Image& left, const Image& right) -> Rectified{
     //load data
     GrayImage left_gray_pixels=left.gray_pixels;
     RgbImage left_rgb_pixels=left.rgb_pixels;
-    Eigen::Matrix3f left_intrinsics=left.intrinsics;
-    Eigen::Matrix4f left_extrinsics=left.extrinsics;
 
     GrayImage right_gray_pixels=right.gray_pixels;
     RgbImage right_rgb_pixels=right.rgb_pixels;
-    Eigen::Matrix3f right_intrinsics=right.intrinsics;
-    Eigen::Matrix4f right_extrinsics=right.extrinsics;
 
+	Eigen::Matrix4f left_to_right = right.extrinsics * left.extrinsics.inverse();
+	for(int i = 0; i < 3; i++)
+		assert(left_to_right(3, i) == 0);
+	assert(left_to_right(3, 3) == 1.0);
 
-    Eigen::Vector3f t_l=Eigen::Vector3f(left_extrinsics(0,3),left_extrinsics(1,3),left_extrinsics(2,3));
-    Eigen::Vector3f t_r=Eigen::Vector3f(right_extrinsics(0,3),right_extrinsics(1,3),right_extrinsics(2,3));
-    Eigen::Matrix3f R_l=left_extrinsics.block<3,3>(0,0);
-    Eigen::Matrix3f R_r=right_extrinsics.block<3,3>(0,0);
-
-    //rotation and transformation from left image to right image
-    Eigen::Matrix3f R=R_r*(R_l.transpose());
-    Eigen::Vector3f T=t_r-R*t_l;
-//
-//    //compute Rotation matrix of rectification
-//    Eigen::Vector3f e1=T/T.
+    //rotation and transformation from left camera to right camera
+    Eigen::Matrix3f R = left_to_right.block<3, 3>(0, 0);
+    Eigen::Vector3f T = R.transpose() * left_to_right.block<3, 1>(0, 3);
 
     //convert eigen matrix to mat
-    cv::Mat left_gray_mat;
-    cv::eigen2cv(left_gray_pixels,left_gray_mat);
+    cv::Mat left_gray_mat, left_ground_mat;
+    cv::eigen2cv(left_gray_pixels, left_gray_mat);
+    cv::eigen2cv(left.ground_truth, left_ground_mat);
     cv::Mat left_rgb_mat = convertRgbToOpenCV(left_rgb_pixels);
-    cv::Mat right_gray_mat;
-    cv::eigen2cv(right_gray_pixels,right_gray_mat);
-    cv::Mat right_rgb_mat = convertRgbToOpenCV(right_rgb_pixels);
-    cv::Mat left_intrinsics_mat,left_extrinsics_mat,right_intrinsics_mat,right_extrinsics_mat,R_mat,T_mat;
 
-    cv::eigen2cv(left_intrinsics,left_intrinsics_mat);
-    cv::eigen2cv(left_extrinsics,left_extrinsics_mat);
-    cv::eigen2cv(right_extrinsics,right_extrinsics_mat);
-    cv::eigen2cv(right_intrinsics,right_intrinsics_mat);
+    cv::Mat right_gray_mat, right_ground_mat;
+    cv::eigen2cv(right_gray_pixels, right_gray_mat);
+    cv::eigen2cv(right.ground_truth, right_ground_mat);
+    cv::Mat right_rgb_mat = convertRgbToOpenCV(right_rgb_pixels);
+    cv::Mat left_intrinsics_mat, right_intrinsics_mat, R_mat, T_mat;
+
+    cv::eigen2cv(left.intrinsics,left_intrinsics_mat);
+    cv::eigen2cv(right.intrinsics,right_intrinsics_mat);
+
     cv::eigen2cv(R,R_mat);
     cv::eigen2cv(T,T_mat);
 
 	R_mat.assignTo(R_mat, CV_64F);
 	T_mat.assignTo(T_mat, CV_64F);
 
-//    cv::MatSize size=left_gray_mat.size;
-
-    cv::Size imageSize=left_gray_mat.size();
+    cv::Size imageSize = left_gray_mat.size();
+	cv::Size targetSize = imageSize; // (left_gray_mat.cols/4., left_gray_mat.rows/4.);
     cv::Mat R1,R2,P1,P2,Q;
-    std::vector<int > disCoeff(4,1);
-//    cv::stereoRectify(left_intrinsics_mat,disCoeff,right_intrinsics_mat,disCoeff,size,R1,R2,P1,P2,Q,);
-    cv::stereoRectify(left_intrinsics_mat,{},right_intrinsics_mat,{},imageSize,R_mat,T_mat,R1,R2,P1,P2,Q,0,-1,imageSize,0,0);
+    cv::stereoRectify(left_intrinsics_mat,{},right_intrinsics_mat,{},imageSize,R_mat,T_mat,R1,R2,P1,P2,Q,
+			cv::CALIB_ZERO_DISPARITY,
+		   	1,targetSize,0,0);
 
-    cv::Mat map1,map2;
-    cv::initUndistortRectifyMap(left_intrinsics_mat,{},R1,P1,imageSize,CV_32FC1,map1,map2);
-    cv::remap(left_gray_mat,left_gray_mat,map1,map2,cv::INTER_NEAREST,cv::BORDER_CONSTANT);
-//	std::cout << left_gray_mat.channels() << " " << left_gray_mat.type() << " " << left_gray_mat.size() << "\n";
-//	std::cout << "Remapped gray\n";
+    cv::Mat map1, map2, left_gray_out, left_ground_out;
+    cv::initUndistortRectifyMap(left_intrinsics_mat,{},R1,P1,targetSize,CV_32FC1,map1,map2);
+    cv::remap(left_gray_mat, left_gray_out, map1, map2, cv::INTER_NEAREST, cv::BORDER_CONSTANT);
+    cv::remap(left_ground_mat, left_ground_out, map1, map2, cv::INTER_NEAREST, cv::BORDER_CONSTANT);
+	left_gray_mat = left_gray_out;
 	remap_rgb(left_rgb_mat, map1, map2);
-//	std::cout << "Remapped rgb\n";
 
-    cv::Mat map3,map4;
-    cv::initUndistortRectifyMap(right_intrinsics_mat,{},R2,P2,imageSize,CV_32FC1,map3,map4);
-    cv::remap(right_gray_mat,right_gray_mat,map3,map4,cv::INTER_NEAREST,cv::BORDER_CONSTANT);
-//	std::cout << "Remapped gray\n";
+    cv::Mat map3,map4, right_gray_out, right_ground_out;
+    cv::initUndistortRectifyMap(right_intrinsics_mat,{},R2,P2,targetSize,CV_32FC1,map3,map4);
+    cv::remap(right_gray_mat, right_gray_out, map3, map4, cv::INTER_NEAREST, cv::BORDER_CONSTANT);
+    cv::remap(right_ground_mat, right_ground_out, map3, map3, cv::INTER_NEAREST, cv::BORDER_CONSTANT);
+	right_gray_mat = right_gray_out;
 	remap_rgb(right_rgb_mat, map3, map4);
-//	std::cout << "Remapped rgb\n";
+
+	std::cout << "Debugging rectification results\n";
+	std::cout << "R1 " << R1 << "\nR2 " << R2 << "\nP1 " << P1 << "\nP2" << P2 << "\nQ " << Q << std::endl;
+
+	std::stringstream debug_name;
+	std::string debug_left = ((debug_name << "debug.rectified" << debug_count << ".left.png"), debug_name.str()); debug_name.str("");
+	std::string debug_right = ((debug_name << "debug.rectified" << debug_count << ".right.png"), debug_name.str()); debug_name.str("");
+	std::string debug_depth = ((debug_name << "debug.rectified" << debug_count << ".depth.png"), debug_name.str()); debug_name.str("");
+	debug_count++;
+
+	cv::imwrite(debug_left, left_gray_mat*255.);
+	cv::imwrite(debug_right, right_gray_mat*255.);
+	cv::imwrite(debug_depth, left_ground_out*25.);
+
+	Rectified rectified;
 
     //convert mat to eigen matrix
-//    struct Rectified {
-//        GrayImage pixel_left_gray;
-//        GrayImage pixel_right_gray;
-//
-//        RgbImage pixel_left_rgb;
-//        RgbImage pixel_right_rgb;
-//
-//        float baseline_distance;
-//        Eigen::Matrix4f extrinsics;
-//    };
-    cv::cv2eigen(left_gray_mat,left_gray_pixels);
-//    cv::cv2eigen(left_rgb_mat,left_rgb_pixels);
-    left_rgb_pixels=convertOpenCVToRgb(left_rgb_mat);
+	rectified.pixel_left_gray = GrayImage(left_gray_mat.rows, left_gray_mat.cols);
+	rectified.left_ground_truth = GrayImage(left_gray_mat.rows, left_gray_mat.cols);
+    cv::cv2eigen(left_gray_mat, rectified.pixel_left_gray);
+    cv::cv2eigen(left_ground_out, rectified.left_ground_truth);
+	rectified.pixel_left_rgb = convertOpenCVToRgb(left_rgb_mat);
 
-    cv::cv2eigen(right_gray_mat,right_gray_pixels);
-//    cv::cv2eigen(right_rgb_mat,right_rgb_pixels);
-    right_rgb_pixels=convertOpenCVToRgb(right_rgb_mat);
+	rectified.pixel_right_gray = GrayImage (right_gray_mat.rows, right_gray_mat.cols);
+	rectified.right_ground_truth = GrayImage(right_gray_mat.rows, right_gray_mat.cols);
+    cv::cv2eigen(right_gray_mat, rectified.pixel_right_gray);
+    cv::cv2eigen(right_ground_out, rectified.right_ground_truth);
+	rectified.pixel_right_rgb = convertOpenCVToRgb(right_rgb_mat);
 
+	rectified.extrinsics_left = left.extrinsics;
+	rectified.extrinsics_right = right.extrinsics;
 
-    Rectified rectified = {
-            /*.pixel_left_gray=*/left_gray_pixels,
-            /*.pixel_right_gray=*/right_gray_pixels,
-            /*.pixel_left_rgb=*/left_rgb_pixels,
-            /*.pixel_right_rgb=*/right_rgb_pixels,
-                                 left_extrinsics,
-                                 right_extrinsics,
-                                 R1,
-                                 R2,
-                                 P1,
-                                 P2
+	rectified.R1 = R1;
+	rectified.R2 = R2;
+	rectified.P1 = P1;
+	rectified.P2 = P2;
+	rectified.Q = Q;
 
-
-
-    };
     return rectified;
 }
 

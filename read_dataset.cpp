@@ -7,9 +7,14 @@
 #include <istream>
 #include <string>
 
+static const std::string data_directory = "data/templeRing/";
+
+std::string dataset_file() {
+	return data_directory + "templeR_par.txt";
+}
+
 // read dataset from istream using file
 auto read_dataset(std::istream& inputfile) -> std::vector<CameraParameter>{
-
     std::vector<CameraParameter> cameraParameters;
     std::string line;
     if(!inputfile){
@@ -20,7 +25,10 @@ auto read_dataset(std::istream& inputfile) -> std::vector<CameraParameter>{
     while (getline(inputfile,line)){
         CameraParameter cameraParameter;
         std::istringstream iss(line);
-        iss>>cameraParameter.filename;
+
+        iss >> cameraParameter.filename;
+		cameraParameter.filename = data_directory + cameraParameter.filename;
+
         std::string s;
         std::string ss[21];
         int i=0;
@@ -50,15 +58,16 @@ auto read_dataset(std::istream& inputfile) -> std::vector<CameraParameter>{
         cameraParameter.extrinsics(2,2)=std::atof(ss[17].c_str());
         cameraParameter.extrinsics(0,3)=std::atof(ss[18].c_str());
         cameraParameter.extrinsics(1,3)=std::atof(ss[19].c_str());
-        cameraParameter.extrinsics(2,3)=std::atof(ss[19].c_str());
+        cameraParameter.extrinsics(2,3)=std::atof(ss[20].c_str());
         cameraParameter.extrinsics(3,0)=0.0;
         cameraParameter.extrinsics(3,1)=0.0;
         cameraParameter.extrinsics(3,2)=0.0;
         cameraParameter.extrinsics(3,3)=1.0;
 
 
-        cameraParameters.push_back(cameraParameter);
+        cameraParameters.insert(cameraParameters.begin(), cameraParameter);
     }
 
     return cameraParameters;
 }
+

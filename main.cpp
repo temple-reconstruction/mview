@@ -3,21 +3,25 @@
 
 #include "mview.h"
 
-static const std::string data_directory = "data/templeSparseRing/";
 static std::vector<Image> read_images(std::vector<CameraParameter> samples);
 static std::vector<Rectified> rectified_pairs(const std::vector<Image>& images);
-static std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>&);
+static std::pair<std::vector<Pointcloud>, SdfIntegrator> rectified_integration(const std::vector<Rectified>&);
+
+constexpr static int SPACING = 2;
 
 template<typename T, typename F>
-static void for_each_pair(T begin, T end, F functor) {
+static void for_each_pair(T begin, T end, F functor, int spacing=SPACING) {
 	if(begin == end)
 		return;
-	for(T first=begin++; begin != end; first++,begin++)
+	T first = begin;
+	for(int i = 0; i <= spacing && begin != end; i++)
+		begin++;
+	for(;begin != end; first++,begin++)
 		functor(*first, *begin);
 }
 
 int main() {
-	std::fstream parameter_file(data_directory + "templeSR_par.txt", std::ios_base::in);
+	std::fstream parameter_file(dataset_file(), std::ios_base::in);
 	std::cout << "Reading dataset\n";
 	const auto dataset = read_dataset(parameter_file);
 	std::cout << "Reading images\n";
@@ -25,19 +29,26 @@ int main() {
 	std::cout << "Rectifying images\n";
 	const auto rectified = rectified_pairs(images);
 	std::cout << "Triangulating pointcoulds\n";
-	const auto pointclouds = rectified_to_pointclouds(rectified);
+	const auto result = rectified_integration(rectified);
+	const auto& pointclouds = result.first;
+	const auto& sdf = result.second;
 	std::cout << "Merging pointclouds\n";
-	const auto merged = align(pointclouds);
-	std::fstream output_file("output.off", std::ios_base::out);
-	std::cout << "Writing output file\n";
-	write_mesh(output_file, merged);
+//	const auto merged = align(pointclouds);
+//	std::fstream output_file("output.off", std::ios_base::out);
+//	std::cout << "Writing output file\n";
+//	write_mesh(output_file, merged);
+
+	std::cout << "Marching cubes to build mesh\n";
+	const auto mesh = sdf.mesh();
+	std::cout << "Writing integrated sdf mesh\n";
+	std::fstream output_sdf("sdf_mesh.off", std::ios_base::out);
+	mesh.WriteMesh(output_sdf);
 }
 
 std::vector<Image> read_images(std::vector<CameraParameter> samples) {
 	std::vector<Image> output;
 	output.reserve(samples.size());
 	for(auto& parameter : samples) {
-		parameter.filename = data_directory + parameter.filename;
 		output.push_back(read_image(parameter));
 	}
 	return output;
@@ -52,29 +63,41 @@ std::vector<Rectified> rectified_pairs(const std::vector<Image>& images) {
 	return output;
 }
 
-std::vector<Pointcloud> rectified_to_pointclouds(const std::vector<Rectified>& rectified_pairs) {
+std::pair<std::vector<Pointcloud>, SdfIntegrator> rectified_integration(
+	const std::vector<Rectified>& rectified_pairs) 
+{
+	SdfIntegrator integrator(
+		200, 200, 200,
+		{1.25, -3.5, 0},
+		{3.5, -1.75, 1.75});
 	std::vector<Pointcloud> output;
+	auto matcher = make_matcher();
+
 	int i = 0;
 	for(const auto& rectified_pair : rectified_pairs) {
-		std::cout << " Finding pixel matches\n";
-		auto correspondences = match(rectified_pair);
+		std::cout << "Processing rectified pair " << i << " of " << rectified_pairs.size() << "\n";
+		std::cout << " Finding pixel matches (" << rectified_pair.pixel_left_gray.rows() << "x" << rectified_pair.pixel_left_gray.cols() << ")\n";
+		auto disparity = matcher->match(rectified_pair);
 		std::cout << " Triangulating coordinates\n";
 
-		triangulate(rectified_pair, correspondences);
+		auto triangulated = triangulate(rectified_pair, disparity);
+		std::cout << " Integrating into sdf\n";
+		integrate(integrator, triangulated);
 
-		Pointcloud pointcloud;
 		std::cout << " Creating pointcloud\n";
-		for(auto& correspondence : correspondences) 
-			pointcloud.points.push_back(correspondence.global);
+		auto pointcloud = globalize(triangulated);
 
 		std::stringstream debug_name;
 		debug_name << "output_debug" << i++ << ".off";
+
 		std::fstream debug_out(debug_name.str(), std::ios_base::out);
 		std::cout << " Writing debug output\n";
 		write_mesh(debug_out, pointcloud);
 
 		output.push_back(std::move(pointcloud));
 	}
-	return output;
+
+	integrator.remove_free();
+	return { output, std::move(integrator) };
 }
 

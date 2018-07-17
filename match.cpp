@@ -1,6 +1,9 @@
 #include "mview.h"
+#include <opencv2/highgui.hpp>
 
 namespace /* local types */ {
+
+static std::string debug_name = "debug.disparity0.png";
 
 using Matches = std::vector<Correspondence>;
 using PixelCoordinates = Correspondence::PixelCoordinates;
@@ -16,13 +19,15 @@ static constexpr int BLOCK_SIZE = 3;
 static MinMatch find_min_gray(GrayImageView pattern, const GrayImage& rhs, int row);
 static Correspondence match_to_correspondence(int row, int col, MinMatch match);
 
-auto match(const Rectified& rectified) -> Matches {
+Disparity match(const Rectified& rectified) {
 	const auto& pixel_left = rectified.pixel_left_gray;
 	const auto& pixel_right = rectified.pixel_right_gray;
 
 	assert(pixel_left.rows() == pixel_right.rows());
 
 	Matches matches;
+	cv::Mat_<float> distances((int)pixel_left.rows() - 2*BLOCK_SIZE, (int)pixel_left.cols() - 2*BLOCK_SIZE);
+	distances.setTo(0.f);
 
 	for(int i = BLOCK_SIZE; i < pixel_left.rows() - BLOCK_SIZE; i++) {
 		for(int j = BLOCK_SIZE; j < pixel_left.cols() - BLOCK_SIZE; j++) {
@@ -30,10 +35,20 @@ auto match(const Rectified& rectified) -> Matches {
 			const auto min = find_min_gray(pattern, pixel_right, i);
 
 			matches.push_back(match_to_correspondence(i, j, min));
+			distances(i - BLOCK_SIZE, j - BLOCK_SIZE) = static_cast<float>(min.colIndex - j);
+			if(pixel_left(i, j) < 5./256.) {
+				distances(i - BLOCK_SIZE, j - BLOCK_SIZE) = 0;
+			}
 		}
 	}
 
-	return matches;
+	cv::Mat disparity = distances.clone();
+	disparity *= 16.0f;
+	disparity.assignTo(disparity, CV_16U);
+	cv::imwrite(debug_name, disparity);
+	debug_name[15]++;
+
+	return { matches, distances };
 }
 
 MinMatch find_min_gray(GrayImageView pattern, const GrayImage& rhs, int row) {
