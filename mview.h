@@ -159,6 +159,8 @@ auto read_image(CameraParameter) -> Image;
  */
 ///@ Yue
 bool write_mesh(std::ostream& filename, const Pointcloud& pointcloud, bool use_face=false);
+bool write_view_mesh(std::ostream& outFile, const PointImage& pointcloud, const ColourImage& colour, bool use_face=true, bool use_colour=false);
 
 ///@ And
 void integrate(SdfIntegrator&, const Pointcloud&);
+
