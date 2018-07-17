@@ -29,12 +29,16 @@ int main() {
 	std::cout << "Triangulating pointcoulds\n";
 	const auto result = rectified_integration(rectified);
 	const auto& pointclouds = result.first;
-	const auto& _sdf = result.second;
+	const auto& sdf = result.second;
 	std::cout << "Merging pointclouds\n";
 	const auto merged = align(pointclouds);
 	std::fstream output_file("output.off", std::ios_base::out);
 	std::cout << "Writing output file\n";
 	write_mesh(output_file, merged);
+
+	std::fstream output_sdf("sdf_mesh.off", std::ios_base::out);
+	const auto mesh = sdf.mesh();
+	mesh.WriteMesh(output_sdf);
 }
 
 std::vector<Image> read_images(std::vector<CameraParameter> samples) {

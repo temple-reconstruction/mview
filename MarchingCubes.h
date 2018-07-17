@@ -3,6 +3,6 @@
 #include "sdf.h"
 #include "SimpleMesh.h"
 
-bool ProcessVolumeCell(SdfIntegrator* vol, int x, int y, int z, double iso, SimpleMesh* mesh);
+bool ProcessVolumeCell(const SdfIntegrator& vol, int x, int y, int z, double iso, SimpleMesh& mesh);
 
 #endif

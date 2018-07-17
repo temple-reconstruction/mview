@@ -1,4 +1,6 @@
 #pragma once
+#include "SimpleMesh.h"
+
 #include <memory>
 #include <Eigen/Eigen>
 
@@ -16,11 +18,7 @@ class SdfIntegrator {
 public:
 	using coordinate = Eigen::Vector3f;
 
-	SdfIntegrator(int x, int y, int z, coordinate min, coordinate max) :
-		min(min), size(max - min),
-		count_x(x), count_y(y), count_z(z),
-		cubes(new Cube[x*y*z])
-	{ }
+	SdfIntegrator(int x, int y, int z, coordinate min, coordinate max);
 
 	void set_x_bounds(float amin, float amax) { min[0] = amin; size[0] = amax - amin; }
 	void set_y_bounds(float amin, float amax) { min[1] = amin; size[1] = amax - amin; };
@@ -40,6 +38,8 @@ public:
 				for(int z = 0; z < count_z; z++)
 					f(coordinate_of(x, y, z), get(x, y, z));
 	}
+
+	SimpleMesh mesh() const;
 
 private:
 	coordinate min;

@@ -417,39 +417,39 @@ static int Polygonise(MC_Gridcell grid, double isolevel, MC_Triangle* triangles)
 }
 
 
-bool ProcessVolumeCell(SdfIntegrator* vol, int x, int y, int z, double iso, SimpleMesh* mesh)
+bool ProcessVolumeCell(const SdfIntegrator& vol, int x, int y, int z, double iso, SimpleMesh& mesh)
 {
 	MC_Gridcell cell;
 
 	Vector3d tmp;
 
 	// cell corners
-	tmp = vol->pos(x + 1, y, z);
+	tmp = vol.pos(x + 1, y, z);
 	cell.p[0] = Vector3d(tmp[0], tmp[1], tmp[2]);
-	tmp = vol->pos(x, y, z);
+	tmp = vol.pos(x, y, z);
 	cell.p[1] = Vector3d(tmp[0], tmp[1], tmp[2]);
-	tmp = vol->pos(x, y + 1, z);
+	tmp = vol.pos(x, y + 1, z);
 	cell.p[2] = Vector3d(tmp[0], tmp[1], tmp[2]);
-	tmp = vol->pos(x + 1, y + 1, z);
+	tmp = vol.pos(x + 1, y + 1, z);
 	cell.p[3] = Vector3d(tmp[0], tmp[1], tmp[2]);
-	tmp = vol->pos(x + 1, y, z + 1);
+	tmp = vol.pos(x + 1, y, z + 1);
 	cell.p[4] = Vector3d(tmp[0], tmp[1], tmp[2]);
-	tmp = vol->pos(x, y, z + 1);
+	tmp = vol.pos(x, y, z + 1);
 	cell.p[5] = Vector3d(tmp[0], tmp[1], tmp[2]);
-	tmp = vol->pos(x, y + 1, z + 1);
+	tmp = vol.pos(x, y + 1, z + 1);
 	cell.p[6] = Vector3d(tmp[0], tmp[1], tmp[2]);
-	tmp = vol->pos(x + 1, y + 1, z + 1);
+	tmp = vol.pos(x + 1, y + 1, z + 1);
 	cell.p[7] = Vector3d(tmp[0], tmp[1], tmp[2]);
 
 	// cell corner values
-	cell.val[0] = (double)vol->get(x + 1, y, z).distance;
-	cell.val[1] = (double)vol->get(x, y, z).distance;
-	cell.val[2] = (double)vol->get(x, y + 1, z).distance;
-	cell.val[3] = (double)vol->get(x + 1, y + 1, z).distance;
-	cell.val[4] = (double)vol->get(x + 1, y, z + 1).distance;
-	cell.val[5] = (double)vol->get(x, y, z + 1).distance;
-	cell.val[6] = (double)vol->get(x, y + 1, z + 1).distance;
-	cell.val[7] = (double)vol->get(x + 1, y + 1, z + 1).distance;
+	cell.val[0] = (double)vol.get(x + 1, y, z).distance;
+	cell.val[1] = (double)vol.get(x, y, z).distance;
+	cell.val[2] = (double)vol.get(x, y + 1, z).distance;
+	cell.val[3] = (double)vol.get(x + 1, y + 1, z).distance;
+	cell.val[4] = (double)vol.get(x + 1, y, z + 1).distance;
+	cell.val[5] = (double)vol.get(x, y, z + 1).distance;
+	cell.val[6] = (double)vol.get(x, y + 1, z + 1).distance;
+	cell.val[7] = (double)vol.get(x + 1, y + 1, z + 1).distance;
 
 	MC_Triangle tris[6];
 	int numTris = Polygonise(cell, iso, tris);
@@ -464,11 +464,11 @@ bool ProcessVolumeCell(SdfIntegrator* vol, int x, int y, int z, double iso, Simp
 		Vertex v2((float)tris[i1].p[2][0], (float)tris[i1].p[2][1], (float)tris[i1].p[2][2]);
 
 		unsigned int vhandle[3];
-		vhandle[0] = mesh->AddVertex(v0);
-		vhandle[1] = mesh->AddVertex(v1);
-		vhandle[2] = mesh->AddVertex(v2);
+		vhandle[0] = mesh.AddVertex(v0);
+		vhandle[1] = mesh.AddVertex(v1);
+		vhandle[2] = mesh.AddVertex(v2);
 
-		mesh->AddFace(vhandle[0], vhandle[1], vhandle[2]);
+		mesh.AddFace(vhandle[0], vhandle[1], vhandle[2]);
 	}
 
 	return true;

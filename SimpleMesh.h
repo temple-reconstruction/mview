@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <Eigen/Eigen>
 
 typedef Eigen::Vector3f Vertex;
 
@@ -53,12 +54,8 @@ public:
 		return m_triangles;
 	}
 
-	bool WriteMesh(const std::string& filename)
+	bool WriteMesh(std::ostream& outFile) const
 	{
-		// Write off file
-		std::ofstream outFile(filename);
-		if (!outFile.is_open()) return false;
-
 		// write header
 		outFile << "OFF" << std::endl;
 		outFile << m_vertices.size() << " " << m_triangles.size() << " 0" << std::endl;
@@ -74,9 +71,6 @@ public:
 		{
 			outFile << "3 " << m_triangles[i].idx0 << " " << m_triangles[i].idx1 << " " << m_triangles[i].idx2 << std::endl;
 		}
-
-		// close file
-		outFile.close();
 
 		return true;
 	}

@@ -1,4 +1,14 @@
 #include "sdf.h"
+#include "MarchingCubes.h"
+
+SdfIntegrator::SdfIntegrator(int x, int y, int z, coordinate min, coordinate max) :
+	min(min), size(max - min),
+	count_x(x), count_y(y), count_z(z),
+	cubes(new Cube[x*y*z])
+{
+	for(int idx = 0; idx < x*y*z; idx++)
+		cubes[idx].distance = 1000.;
+}
 
 auto SdfIntegrator::coordinate_of(int x, int y, int z) const -> coordinate {
 	coordinate dist {
@@ -43,3 +53,20 @@ const Cube& SdfIntegrator::get(int x, int y, int z) const {
 	return cubes[index_of(x, y, z)];
 }
 
+SimpleMesh SdfIntegrator::mesh() const {
+	SimpleMesh mesh;
+
+	for (unsigned int x = 0; x < count_x; x++)
+	{
+		std::cerr << "Marching Cubes on slice " << x << " of " << count_x << std::endl;
+		for (unsigned int y = 0; y < count_y; y++)
+		{
+			for (unsigned int z = 0; z < count_z; z++)
+			{
+				ProcessVolumeCell(*this, x, y, z, 0.00f, mesh);
+			}
+		}
+	}
+
+	return mesh;
+}
