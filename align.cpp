@@ -71,6 +71,10 @@ void integrate(SdfIntegrator& integrator, const Triangulated& triangulated) {
 		const float measured_r = triangulated.points(i, j + 1).norm();
 		const float measured_tr = triangulated.points(i + 1, j + 1).norm();
 
+		// Skip invalid measurements
+		if(measured_b == 0 || measured_t == 0 || measured_r == 0 || measured_tr == 0)
+			return;
+
 		const float measured = (1 - i_fract)*(1 - j_fract)*measured_b
 			+ i_fract*(1 - j_fract)*measured_t
 			+ (1 - i_fract)*j_fract*measured_r

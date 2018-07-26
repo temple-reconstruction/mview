@@ -53,7 +53,7 @@ const Cube& SdfIntegrator::get(int x, int y, int z) const {
 
 void SdfIntegrator::remove_free() {
 	visit([](auto _coord, auto& cube) {
-			if(cube.freeCtr > 3*cube.weights)
+			if(cube.freeCtr > cube.weights)
 				cube.distance = 1000.f;
 		});
 }
