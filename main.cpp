@@ -40,6 +40,7 @@ int main() {
 	const auto& pointclouds = result.first;
 	const auto& sdf = result.second;
 	std::cout << "Merging pointclouds\n";
+
 //	const auto merged = align(pointclouds);
 //	std::fstream output_file("output.off", std::ios_base::out);
 //	std::cout << "Writing output file\n";
@@ -109,9 +110,11 @@ std::pair<std::vector<Pointcloud>, SdfIntegrator> rectified_integration(
 		std::stringstream debug_name;
 		debug_name << "output_debug" << i++ << ".off";
 
+#if !MVIEW_NDEBUG
 		std::fstream debug_out(debug_name.str(), std::ios_base::out);
 		std::cout << " Writing debug output\n";
 		write_mesh(debug_out, pointcloud);
+#endif
 
 		output.push_back(std::move(pointcloud));
 	}

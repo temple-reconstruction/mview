@@ -127,6 +127,7 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
 	std::cout << "Debugging rectification results\n";
 	std::cout << "R1 " << R1 << "\nR2 " << R2 << "\nP1 " << P1 << "\nP2" << P2 << "\nQ " << Q << std::endl;
 
+#if !MVIEW_NDEBUG
 	std::stringstream debug_name;
 	std::string debug_left = ((debug_name << "debug.rectified" << debug_count << ".left.png"), debug_name.str()); debug_name.str("");
 	std::string debug_right = ((debug_name << "debug.rectified" << debug_count << ".right.png"), debug_name.str()); debug_name.str("");
@@ -136,6 +137,7 @@ auto rectify(const Image& left, const Image& right) -> Rectified{
 	cv::imwrite(debug_left, left_gray_mat*255.);
 	cv::imwrite(debug_right, right_gray_mat*255.);
 	cv::imwrite(debug_depth, left_ground_out*25.);
+#endif
 
 	Rectified rectified;
 

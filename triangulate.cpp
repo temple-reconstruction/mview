@@ -21,11 +21,13 @@ Triangulated triangulate(const Rectified &rectified, const Disparity& disparity)
   cv::Mat point_parts[3];
   cv::split(reconstructed_points, point_parts);
 
+#if !MVIEW_NDEBUG
   std::stringstream depth_output_str;
   depth_output_str << "debug.depth" << debug_cnt++ << ".png";
   std::string depth_output = depth_output_str.str();
 
   cv::imwrite(depth_output, point_parts[2]*25.);
+#endif
 
   cv::Mat quantitative;
   cv::eigen2cv(rectified.left_ground_truth, quantitative);

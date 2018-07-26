@@ -82,7 +82,10 @@ Disparity match(const Rectified& rectified) {
 	output.disparity.assignTo(output.disparity, CV_32F);
 	output.disparity /= 16.;
 
+#if !MVIEW_NDEBUG
 	cv::imwrite(debug_disparity, (output.disparity - stereo->getMinDisparity())/stereo->getNumDisparities()*255.);
+#endif
+
 	output.disparity.setTo(-1000., output.disparity < stereo->getMinDisparity());
 
 	return output;
