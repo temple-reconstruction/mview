@@ -27,6 +27,16 @@ Triangulated triangulate(const Rectified &rectified, const Disparity& disparity)
 
   cv::imwrite(depth_output, point_parts[2]*25.);
 
+  cv::Mat quantitative;
+  cv::eigen2cv(rectified.left_ground_truth, quantitative);
+  quantitative = quantitative - point_parts[2];
+  quantitative.setTo(0.f, mask);
+  const int count = mask.size().area() - cv::countNonZero(mask);
+  float squared_error = 0.f;
+  quantitative.forEach<float>([&squared_error](float diff, const int*) { squared_error += diff*diff; });
+  std::cout << "Squared absolute error: " << squared_error << " (count: " << count << ")\n";
+  std::cout << "Relative error: " << std::sqrt(squared_error)/count << "\n";
+
   for(int i = 0; i < 3; i++)
     point_parts[i] = point_parts[i].reshape(1, 1);
 
